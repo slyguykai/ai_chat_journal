@@ -1,6 +1,6 @@
 import argparse
 from rich import print
-from journal import storage, ai
+from journal import storage, ai, utils
 
 def main():
     parser = argparse.ArgumentParser(prog="journal")
@@ -11,6 +11,7 @@ def main():
 
     sub.add_parser("list", help="Show previous entries")
     sub.add_parser("analyze", help="Run AI analysis on new entries")
+    sub.add_parser("stats", help="Show mood statistics")
 
     args = parser.parse_args()
 
@@ -35,5 +36,20 @@ def main():
             summary, mood = ai.analyse(entry["text"])
             storage.update_entry(idx, summary, mood)
             print("done.")
+    elif args.command == "stats":
+        data = storage.list_entries()
+        moods = [e["mood"] for e in data if e.get("mood") is not None]
+        if not moods:
+            print("No mood data yet. Run 'analyze' first.")
+            return
+
+        avg = sum(moods) / len(moods)
+        best = max(moods)
+        worst = min(moods)
+        print(f"Entries: {len(data)}  Avg mood: {avg:.2f}  "
+              f"Best: {best}  Worst: {worst}")
+
+        # Trend sparkline
+        print("Trend:", utils.sparkline(moods)) 
     else:
         parser.print_help()

@@ -3,6 +3,17 @@ file and uses OpenAI to generate short summaries and 1-to-10 mood scores for
 each entry. It also provides quick statistics and a unicode sparkline of your
 mood trend.
 
+## How it works
+	•	storage.py – reads/writes ~/.ai_chat_journal.json.
+	•	ai.py – sends each entry’s text to OpenAI (gpt-3.5-turbo by default) and returns {"summary": "...", "mood": 7}.
+	•	cli.py – parses commands and orchestrates storage + AI logic.
+	•	utils.py – tiny helper to render mood values as a sparkline.
+
+## Roadmap
+	•	SQLite backend
+	•	Streamlit front-end with charts
+	•	Voice-to-text (Whisper) entry option
+	•	Mobile wrapper (e.g. BeeWare or React Native)
 ## Features
 
 | Command        | What it does                                   |
@@ -32,17 +43,4 @@ python main.py list
 
 # Quick statistics
 python main.py stats
-
-How it works
-	•	storage.py – reads/writes ~/.ai_chat_journal.json.
-	•	ai.py – sends each entry’s text to OpenAI (gpt-3.5-turbo by default)
-and returns {"summary": "...", "mood": 7}.
-	•	cli.py – parses commands and orchestrates storage + AI logic.
-	•	utils.py – tiny helper to render mood values as a sparkline.
-
-Roadmap
-	•	SQLite backend
-	•	Streamlit front-end with charts
-	•	Voice-to-text (Whisper) entry option
-	•	Mobile wrapper (e.g. BeeWare or React Native)
 

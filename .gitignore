@@ -2,3 +2,6 @@
 .DS_Store
 .env
 journal/__pycache__/
+journal.md
+journal.pdf
+my_journal.md

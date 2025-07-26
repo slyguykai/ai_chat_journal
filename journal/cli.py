@@ -1,4 +1,5 @@
 import argparse
+from pathlib import Path
 from rich import print
 from journal import storage, ai, utils, export
 
@@ -12,8 +13,9 @@ def main():
     sub.add_parser("list", help="Show previous entries")
     sub.add_parser("analyze", help="Run AI analysis on new entries")
     sub.add_parser("stats", help="Show mood statistics")
-    export_cmd = sub.add_parser("export", help="Export entries to Markdown")
-    export_cmd.add_argument("file", help="Output .md path")
+    export_cmd = sub.add_parser("export", help="Export entries to Markdown / PDF")
+    export_cmd.add_argument("file", help="Base filename (without extension or with .md)")
+    export_cmd.add_argument("--pdf", action="store_true", help="Also create PDF alongside Markdown")
 
     args = parser.parse_args()
 
@@ -54,8 +56,18 @@ def main():
         # Trend sparkline
         print("Trend:", utils.sparkline(moods)) 
     elif args.command == "export":
-        # Export all entries to a Markdown file
-        path = export.export_markdown(args.file)
-        print(f"[green]Markdown exported to {path}[/green]")
+        # Determine Markdown path
+        base = Path(args.file).expanduser()
+        md_path = base.with_suffix(".md") if base.suffix.lower() != ".md" else base
+
+        md_path = export.export_markdown(md_path)
+        print(f"[green]Markdown exported to {md_path}[/green]")
+
+        if args.pdf:
+            try:
+                pdf_path = export.export_pdf(md_path.with_suffix(".pdf"), md_path)
+                print(f"[green]PDF exported to {pdf_path}[/green]")
+            except Exception as exc:
+                print(f"[red]PDF export failed: {exc}[/red]")
     else:
         parser.print_help()

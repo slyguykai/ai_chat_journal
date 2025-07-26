@@ -34,3 +34,7 @@ def list_entries():
 def update_entry(entry_id: int | str, summary: str, mood: int) -> None:
     """Update a single row identified by its primary‑key id."""
     table.update(int(entry_id), {"summary": summary, "mood": mood})
+
+def update_text(entry_id: int | str, new_text: str) -> None:
+    """Update only the text field for a given entry id."""
+    table.update(int(entry_id), {"text": new_text})

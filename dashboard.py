@@ -75,7 +75,7 @@ def analyze_missing(df: pd.DataFrame):
         progress.progress(idx / len(missing))
     progress.empty()
     st.toast("Analysis complete!", icon="🤖")
-    st.experimental_rerun()
+    st.rerun()
 
 # ---------- Layout ---------------------------------------------------------
 
@@ -119,7 +119,7 @@ with st.sidebar.expander("➕ Add new entry"):
         if new_text.strip():
             storage.add_entry(new_text.strip())
             st.success("Entry saved!")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("Cannot save an empty entry.")
 
@@ -165,13 +165,37 @@ with right:
         )
     else:
         for row in df.itertuples(index=False):
-            st.markdown(
-                f"""
-                <div class="journal-card">
-                    <h5>{row.timestamp:%Y-%m-%d %H:%M} — mood {row.mood if pd.notna(row.mood) else 'N/A'}</h5>
-                    <p>{row.text}</p>
-                    {f"<blockquote>{row.summary}</blockquote>" if pd.notna(row.summary) else ""}
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+            editing = st.session_state.get("edit_id") == row.id
+
+            if editing:
+                new_txt = st.text_area(
+                    "Edit entry",
+                    value=st.session_state.get("edit_text", row.text),
+                    height=120,
+                    key=f"ta-{row.id}"
+                )
+                colA, colB = st.columns([1, 1])
+                if colA.button("💾 Save", key=f"save-{row.id}", type="primary"):
+                    storage.update_text(row.id, new_txt)
+                    st.session_state.pop("edit_id", None)
+                    st.session_state.pop("edit_text", None)
+                    st.rerun()
+                if colB.button("↩️ Cancel", key=f"cancel-{row.id}"):
+                    st.session_state.pop("edit_id", None)
+                    st.session_state.pop("edit_text", None)
+                    st.rerun()
+            else:
+                st.markdown(
+                    f"""
+                    <div class="journal-card">
+                        <h5>{row.timestamp:%Y-%m-%d %H:%M} — mood {row.mood if pd.notna(row.mood) else 'N/A'}</h5>
+                        <p>{row.text}</p>
+                        {f"<blockquote>{row.summary}</blockquote>" if pd.notna(row.summary) else ""}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                if st.button("✏️ Edit", key=f"edit-{row.id}"):
+                    st.session_state["edit_id"] = row.id
+                    st.session_state["edit_text"] = row.text
+                    st.rerun()

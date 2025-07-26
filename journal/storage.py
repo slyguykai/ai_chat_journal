@@ -31,6 +31,6 @@ def list_entries():
     return list(table.rows)
 
 
-def update_entry(entry_id: int, summary: str, mood: int) -> None:
+def update_entry(entry_id: int | str, summary: str, mood: int) -> None:
     """Update a single row identified by its primary‑key id."""
     table.update(int(entry_id), {"summary": summary, "mood": mood})

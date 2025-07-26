@@ -26,15 +26,15 @@ def main():
             print(line + "\n")
     elif args.command == "analyze":
         entries = storage.list_entries()
-        pending = [(idx, e) for idx, e in enumerate(entries) if e.get("summary") is None]
+        pending = [e for e in entries if e.get("summary") is None]
         if not pending:
             print("No unanalyzed entries.")
             return
 
-        for idx, entry in pending:
-            print(f"Analyzing entry {idx+1} …", end=" ", flush=True)
+        for entry in pending:
+            print(f"Analyzing entry {entry['id']} …", end=" ", flush=True)
             summary, mood = ai.analyse(entry["text"])
-            storage.update_entry(idx, summary, mood)
+            storage.update_entry(entry["id"], summary, mood)
             print("done.")
     elif args.command == "stats":
         data = storage.list_entries()

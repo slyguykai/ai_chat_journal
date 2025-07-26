@@ -54,7 +54,7 @@ def import_markdown(md_path: str | Path) -> int:
             i += 1
 
         # Skip if timestamp already exists
-        if table.exists(timestamp=timestamp):
+        if table.count_where("timestamp = ?", [timestamp]) > 0:
             continue
 
         table.insert(

@@ -15,6 +15,32 @@ import streamlit as st
 from journal.db import get_db, TABLE
 from journal import storage, ai, export
 
+# ---------- Custom CSS & fonts ----------
+st.markdown(
+    """
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+    html, body, [class*="css"]  {
+        font-family: 'Inter', sans-serif;
+    }
+    section[data-testid="stSidebar"] > div:first-child {
+        width: 260px;   /* narrower sidebar */
+    }
+    .journal-card {
+        background: #FFFFFF;
+        border: 1px solid #E0E0E0;
+        border-radius: 12px;
+        padding: 1rem 1.25rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        margin-bottom: 0.8rem;
+    }
+    .journal-card h5 { margin: 0 0 0.3rem 0; font-size: 1.05rem; }
+    .journal-card p  { margin: 0 0 0.4rem 0; line-height: 1.35; }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
 # ---------- Helpers ---------------------------------------------------------
 
 @st.cache_resource(show_spinner=False)
@@ -76,11 +102,11 @@ start_date, end_date = st.sidebar.date_input(
 search_term = st.sidebar.text_input("Text search")
 show_missing = st.sidebar.checkbox("Show only unanalyzed")
 
-if st.sidebar.button("Analyze missing entries"):
+if st.sidebar.button("✨ Analyze missing", type="primary"):
     analyze_missing(df_all)
 
 # Export buttons
-if st.sidebar.button("Export Markdown & PDF"):
+if st.sidebar.button("🗄️ Export MD + PDF", type="primary"):
     md = export.export_markdown("journal_export.md")
     pdf = export.export_pdf("journal_export.pdf", md)
     st.sidebar.download_button("Download Markdown", md.read_bytes(), "journal.md")
@@ -89,7 +115,7 @@ if st.sidebar.button("Export Markdown & PDF"):
 # Add-entry expander
 with st.sidebar.expander("➕ Add new entry"):
     new_text = st.text_area("Your entry", height=120)
-    if st.button("Save entry"):
+    if st.button("💾 Save entry", type="primary"):
         if new_text.strip():
             storage.add_entry(new_text.strip())
             st.success("Entry saved!")
@@ -109,7 +135,7 @@ df = df_all[mask]
 
 # ---------- Main: mood chart + entries ----------
 
-left, right = st.columns([1.8, 2.2])
+left, right = st.columns([1, 2])
 
 with left:
     st.subheader("Mood over time")
@@ -118,7 +144,7 @@ with left:
     else:
         chart = (
             alt.Chart(df.dropna(subset=["mood"]))
-            .mark_line(point=True)
+            .mark_line(point=True, color="#14B8A6")   # teal accent
             .encode(
                 x="timestamp:T",
                 y=alt.Y("mood:Q", scale=alt.Scale(domain=[0, 10])),
@@ -129,11 +155,23 @@ with left:
 with right:
     st.subheader("Entries")
     if df.empty:
-        st.info("No entries match the filters.")
+        st.markdown(
+            """<div style="text-align:center;">
+            <img src="https://raw.githubusercontent.com/streamlit/streamlit/develop/examples/data/happy-face.png"
+                 width="140" alt="No data"/>
+            <p style="font-size:1.1rem;">No entries match the filters.</p>
+            </div>""",
+            unsafe_allow_html=True,
+        )
     else:
         for row in df.itertuples(index=False):
-            label = f"{row.timestamp.strftime('%Y-%m-%d %H:%M')} — mood {row.mood if pd.notna(row.mood) else 'N/A'}"
-            with st.expander(label):
-                st.write(row.text)
-                if pd.notna(row.summary):
-                    st.markdown(f"> {row.summary}")
+            st.markdown(
+                f"""
+                <div class="journal-card">
+                    <h5>{row.timestamp:%Y-%m-%d %H:%M} — mood {row.mood if pd.notna(row.mood) else 'N/A'}</h5>
+                    <p>{row.text}</p>
+                    {f"<blockquote>{row.summary}</blockquote>" if pd.notna(row.summary) else ""}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )

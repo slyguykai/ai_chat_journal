@@ -1,7 +1,7 @@
 import argparse
 from pathlib import Path
 from rich import print
-from journal import storage, ai, utils, export, import_md
+from journal import storage, ai, utils, export, import_md, voice
 
 def main():
     parser = argparse.ArgumentParser(prog="journal")
@@ -18,6 +18,10 @@ def main():
     export_cmd.add_argument("--pdf", action="store_true", help="Also create PDF alongside Markdown")
     import_cmd = sub.add_parser("import", help="Import entries from Markdown")
     import_cmd.add_argument("file", help="Path to .md file exported earlier")
+
+    voice_cmd = sub.add_parser("voice", help="Record audio and transcribe into a new entry")
+    voice_cmd.add_argument("--duration", type=int, default=30,
+                           help="Recording length in seconds (default 30)")
 
     args = parser.parse_args()
 
@@ -77,5 +81,12 @@ def main():
             print(f"[green]{added} new entries imported[/green]")
         except Exception as exc:
             print(f"[red]Import failed: {exc}[/red]")
+    elif args.command == "voice":
+        text = voice.record_and_transcribe(args.duration)
+        if not text.strip():
+            print("[yellow]No speech detected; entry not saved.[/yellow]")
+        else:
+            storage.add_entry(text.strip())
+            print("[green]Voice entry saved![/green]")
     else:
         parser.print_help()

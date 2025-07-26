@@ -1,6 +1,6 @@
 import argparse
 from rich import print
-from journal import storage, ai, utils
+from journal import storage, ai, utils, export
 
 def main():
     parser = argparse.ArgumentParser(prog="journal")
@@ -12,6 +12,8 @@ def main():
     sub.add_parser("list", help="Show previous entries")
     sub.add_parser("analyze", help="Run AI analysis on new entries")
     sub.add_parser("stats", help="Show mood statistics")
+    export_cmd = sub.add_parser("export", help="Export entries to Markdown")
+    export_cmd.add_argument("file", help="Output .md path")
 
     args = parser.parse_args()
 
@@ -51,5 +53,9 @@ def main():
 
         # Trend sparkline
         print("Trend:", utils.sparkline(moods)) 
+    elif args.command == "export":
+        # Export all entries to a Markdown file
+        path = export.export_markdown(args.file)
+        print(f"[green]Markdown exported to {path}[/green]")
     else:
         parser.print_help()

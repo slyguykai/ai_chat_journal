@@ -1,0 +1,10 @@
+--swiftversion 5.10
+--indent 4
+--maxwidth 120
+--wraparguments after-first
+--wrapcollections before-first
+--self insert
+--stripunusedargs closure-only
+--importgrouping alpha
+--binarygrouping none
+--disable redundantSelf

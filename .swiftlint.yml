@@ -1,0 +1,20 @@
+# Gentle, junior-friendly linting
+disabled_rules:
+  - trailing_whitespace
+  - identifier_name
+  - line_length
+opt_in_rules:
+  - closure_spacing
+  - empty_count
+  - explicit_init
+  - unneeded_parentheses_in_closure_argument
+  - vertical_parameter_alignment_on_call
+included:
+  - App
+  - Features
+  - Services
+  - Shared
+excluded:
+  - Build
+reporter: "xcode"
+warning_threshold: 15

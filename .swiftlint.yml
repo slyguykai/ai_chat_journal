@@ -10,6 +10,8 @@ opt_in_rules:
   - unneeded_parentheses_in_closure_argument
   - vertical_parameter_alignment_on_call
 included:
+  - "AI Journal App"
+  - "AI Journal App/AI Journal App"
   - App
   - Features
   - Services

@@ -14,22 +14,16 @@ struct TodayView: View {
         ZStack {
             GradientBackground.peachCream
             ScrollView {
-                GeometryReader { proxy in
-                    let y = proxy.frame(in: .global).minY
+                VStack(spacing: AppSpacing.l) {
+                    TopBarCapsule(iconSystemName: "house", title: "Today")
                     header
-                        .padding(.top, max(0, -y))
-                        .scaleEffect(reduceMotion ? 1.0 : scale(for: y))
-                        .offset(y: reduceMotion ? 0 : offset(for: y))
+                    promptCard
+                    Spacer(minLength: AppSpacing.l)
                 }
-                .frame(height: 88)
-                
-                promptCard
-                    .padding(.top, AppSpacing.m)
-                
-                Spacer(minLength: AppSpacing.l)
+                .padding(.horizontal, AppSpacing.m)
+                .padding(.top, AppSpacing.m)
             }
             .scrollIndicators(.hidden)
-            .padding(.horizontal, AppSpacing.m)
         }
         .appTheme()
     }
@@ -37,18 +31,13 @@ struct TodayView: View {
     // MARK: - Sections
     
     private var header: some View {
-        HStack(alignment: .center, spacing: AppSpacing.m) {
-            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text(greeting())
-                    .titleXL(weight: .bold)
-                    .foregroundColor(.white)
-                Text("Keep the momentum going")
-                    .body()
-                    .foregroundColor(.white.opacity(0.9))
-            }
-            Spacer()
-            StreakChip(streakCount: 5)
-                .accessibilityLabel("Current streak, 5 days")
+        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+            Text(greeting())
+                .titleXL(weight: .bold)
+                .foregroundColor(AppColors.inkPrimary)
+            Text("Keep the momentum going")
+                .body()
+                .foregroundColor(AppColors.inkSecondary)
         }
     }
     
@@ -89,16 +78,6 @@ struct TodayView: View {
         case 12..<17: return "Good Afternoon"
         default: return "Good Evening"
         }
-    }
-    
-    private func scale(for y: CGFloat) -> CGFloat {
-        if y > 0 { return 1.0 + min(y / 300.0, 0.06) }
-        return 1.0
-    }
-    
-    private func offset(for y: CGFloat) -> CGFloat {
-        if y > 0 { return -min(y / 2.5, 20) }
-        return 0
     }
 }
 

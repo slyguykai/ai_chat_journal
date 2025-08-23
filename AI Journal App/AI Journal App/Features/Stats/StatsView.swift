@@ -20,12 +20,14 @@ struct StatsView: View {
             .overlay(
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppSpacing.l) {
+                        TopBarCapsule(iconSystemName: "chart.line.uptrend.xyaxis", title: "Stats")
                         header
                         chartSection
                         kpiRow
                         Spacer(minLength: 0)
                     }
-                    .padding(AppSpacing.m)
+                    .padding(.horizontal, AppSpacing.m)
+                    .padding(.top, AppSpacing.m)
                     .appTheme()
                 }
             )
@@ -33,7 +35,7 @@ struct StatsView: View {
     
     private var header: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("Stats").titleXL(weight: .bold).foregroundColor(AppColors.inkPrimary)
+            Text("Your Insights").titleXL(weight: .bold).foregroundColor(AppColors.inkPrimary)
             Text("Your mood trends and wellness insights").body().foregroundColor(AppColors.inkSecondary)
         }
     }

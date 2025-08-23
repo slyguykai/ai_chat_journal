@@ -24,85 +24,76 @@ struct BrainDumpView: View {
             ZStack {
                 BrainDumpBackground()
                 
-                VStack(spacing: AppSpacing.l) {
-                    // Header: Brain icon + title
-                    HStack(spacing: AppSpacing.s) {
-                        Image(systemName: "brain.head.profile")
-                            .font(.system(size: 28, weight: .semibold))
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
-                        Text("Brain Dump")
-                            .titleXL(weight: .bold)
-                            .foregroundColor(.white)
-                            .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 1)
-                        Spacer()
-                    }
-                    .padding(.top, AppSpacing.m)
-                    
-                    // Mood row (even distribution)
-                    HStack(spacing: 0) {
-                        ForEach(MoodType.allCases, id: \.self) { mood in
-                            Button {
-                                selectedMood = mood
-                                Haptics.light()
-                            } label: {
-                                MoodEmojiView(type: mood, size: .large, isSelected: selectedMood == mood)
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(PlainButtonStyle())
-                            .accessibilityLabel(mood.accessibilityLabel)
-                            .accessibilityAddTraits(selectedMood == mood ? .isSelected : [])
-                        }
-                    }
-                    
-                    // Text editor card with higher contrast (hero card)
-                    ZStack(alignment: .topLeading) {
-                        TextEditor(text: Binding(
-                            get: { viewModel.state.currentText },
-                            set: { viewModel.updateText($0) }
-                        ))
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.inkPrimary)
-                        .focused($isTextEditorFocused)
-                        .disabled(viewModel.isLoading)
-                        .frame(minHeight: 260)
+                ScrollView {
+                    VStack(spacing: AppSpacing.l) {
+                        TopBarCapsule(iconSystemName: "brain.head.profile", title: "Brain Dump")
                         
-                        if viewModel.state.currentText.isEmpty {
-                            Text("Let your thoughts flow freely.")
-                                .body()
-                                .foregroundColor(AppColors.inkSecondary)
-                                .padding(.top, AppSpacing.s)
-                                .padding(.horizontal, AppSpacing.s)
-                                .allowsHitTesting(false)
+                        // Mood row (even distribution)
+                        HStack(spacing: 0) {
+                            ForEach(MoodType.allCases, id: \.self) { mood in
+                                Button {
+                                    selectedMood = mood
+                                    Haptics.light()
+                                } label: {
+                                    MoodEmojiView(type: mood, size: .large, isSelected: selectedMood == mood)
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(PlainButtonStyle())
+                                .accessibilityLabel(mood.accessibilityLabel)
+                                .accessibilityAddTraits(selectedMood == mood ? .isSelected : [])
+                            }
                         }
+                        
+                        // Text editor card with higher contrast (hero card)
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: Binding(
+                                get: { viewModel.state.currentText },
+                                set: { viewModel.updateText($0) }
+                            ))
+                            .font(AppTypography.body)
+                            .foregroundColor(AppColors.inkPrimary)
+                            .focused($isTextEditorFocused)
+                            .disabled(viewModel.isLoading)
+                            .frame(minHeight: 260)
+                            
+                            if viewModel.state.currentText.isEmpty {
+                                Text("Let your thoughts flow freely.")
+                                    .body()
+                                    .foregroundColor(AppColors.inkSecondary)
+                                    .padding(.top, AppSpacing.s)
+                                    .padding(.horizontal, AppSpacing.s)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        .padding(AppSpacing.m)
+                        .background(
+                            RoundedRectangle(cornerRadius: AppRadii.large)
+                                .fill(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppRadii.large)
+                                        .fill(Color.white.opacity(0.18))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppRadii.large)
+                                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
+                                )
+                                .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
+                        )
+                        .scaleEffect(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.85))
+                        .opacity(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.0))
+                        
+                        Button("Save") {
+                            Haptics.light()
+                            viewModel.save()
+                        }
+                        .buttonStyle(PrimaryButtonStyle())
+                        .disabled(!viewModel.canSave)
+                        .accessibilityLabel("Save brain dump entry")
                     }
-                    .padding(AppSpacing.m)
-                    .background(
-                        RoundedRectangle(cornerRadius: AppRadii.large)
-                            .fill(.ultraThinMaterial)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppRadii.large)
-                                    .fill(Color.white.opacity(0.18))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppRadii.large)
-                                    .stroke(Color.white.opacity(0.35), lineWidth: 1)
-                            )
-                            .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
-                    )
-                    .scaleEffect(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.85))
-                    .opacity(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.0))
-                    
-                    Button("Save") {
-                        Haptics.light()
-                        viewModel.save()
-                    }
-                    .buttonStyle(PrimaryButtonStyle())
-                    .disabled(!viewModel.canSave)
-                    .accessibilityLabel("Save brain dump entry")
+                    .padding(.horizontal, AppSpacing.m)
+                    .padding(.top, AppSpacing.m)
+                    .padding(.bottom, AppSpacing.l)
                 }
-                .padding(.horizontal, AppSpacing.m)
-                .padding(.bottom, AppSpacing.l)
             }
             .navigationBarHidden(true)
             .onAppear {

@@ -53,158 +53,146 @@ struct InspirationContent {
 /// Main inspiration view with daily content
 struct InspireView: View {
     @State private var inspirationContent: [InspirationContent] = sampleInspirationContent
+    @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
         NavigationView {
-            ZStack {
-                // Background gradient
+            ZStack(alignment: .top) {
+                // Premium layered background
                 GradientBackground.blushLavender
+                    .overlay(
+                        LinearGradient(
+                            colors: [Color.white.opacity(0.15), Color.clear],
+                            startPoint: .top,
+                            endPoint: .center
+                        )
+                    )
+                    .overlay(
+                        RadialGradient(
+                            colors: [Color.white.opacity(0.12), Color.clear],
+                            center: .topLeading,
+                            startRadius: 0,
+                            endRadius: 380
+                        )
+                    )
                 
                 ScrollView {
                     VStack(spacing: AppSpacing.l) {
-                        // Header
-                        VStack(spacing: AppSpacing.s) {
-                            HStack {
-                                Image(systemName: "lightbulb.fill")
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundColor(.white)
-                                
-                                Text("Daily Inspiration")
-                                    .body(weight: .semibold)
-                                    .foregroundColor(.white)
-                            }
-                            .padding(.horizontal, AppSpacing.m)
-                            .padding(.vertical, AppSpacing.s)
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(AppRadii.large)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppRadii.large)
-                                    .stroke(.white.opacity(0.3), lineWidth: 1)
-                            )
-                            
+                        TopBarCapsule(iconSystemName: "sparkles", title: "Daily Inspiration")
+                        
+                        // Title and subtitle block
+                        VStack(alignment: .leading, spacing: AppSpacing.s) {
                             Text("Find Your Spark")
                                 .titleXL(weight: .bold)
-                                .foregroundColor(.white)
+                                .foregroundColor(AppColors.inkPrimary)
+                                .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.4 : 0.0), radius: 1, x: 0, y: 1)
                             
                             Text("Discover daily quotes, affirmations, and mindful moments to inspire your journey.")
                                 .body()
-                                .foregroundColor(.white.opacity(0.8))
-                                .multilineTextAlignment(.center)
+                                .foregroundColor(AppColors.inkSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
                         }
-                        .padding(.top, AppSpacing.m)
+                        .frame(maxWidth: .infinity, alignment: .leading)
                         
-                        // Inspiration Cards
+                        // Quote hero card (gradient tile)
+                        QuoteHeroCard(content: inspirationContent.first { $0.category == .quote }!)
+                            .accessibilityElement(children: .combine)
+                            .accessibilityLabel("Daily quote: \(inspirationContent.first { $0.category == .quote }?.content ?? "")")
+                            
+                        // List tiles with translucent glass style
                         LazyVStack(spacing: AppSpacing.m) {
-                            ForEach(inspirationContent, id: \.id) { content in
-                                InspirationCard(content: content)
+                            ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
+                                GlassCard(cornerRadius: AppRadii.large) {
+                                    TileRow(content: content)
+                                }
                             }
                         }
                         .padding(.bottom, AppSpacing.xl)
                     }
                     .padding(.horizontal, AppSpacing.m)
+                    .padding(.top, AppSpacing.m)
                 }
+                
+                // Fixed bubble header retained visually via TopBarCapsule; remove separate overlay
             }
             .navigationBarHidden(true)
         }
     }
 }
 
-/// Individual inspiration card with glass morphism style
-struct InspirationCard: View {
+// MARK: - Quote Hero Card
+
+private struct QuoteHeroCard: View {
     let content: InspirationContent
-    @State private var isReflecting = false
     
     var body: some View {
-        VStack(spacing: AppSpacing.m) {
-            // Category header
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(content.category.iconColor.opacity(0.2))
-                        .frame(width: 40, height: 40)
-                    
-                    Image(systemName: content.category.icon)
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundColor(content.category.iconColor)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(content.category.rawValue)
-                        .body(weight: .semibold)
-                        .foregroundColor(.white)
-                    
-                    if !content.title.isEmpty {
-                        Text(content.title)
-                            .caption()
-                            .foregroundColor(.white.opacity(0.7))
-                    }
-                }
-                
-                Spacer()
-            }
+        VStack(spacing: AppSpacing.s) {
+            Image(systemName: "sparkles")
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundColor(AppColors.coral)
             
-            // Main content
-            VStack(spacing: AppSpacing.s) {
-                if content.category == .quote {
-                    // Special quote styling
-                    VStack(spacing: AppSpacing.s) {
-                        Image(systemName: "sparkles")
-                            .font(.system(size: 24))
-                            .foregroundColor(AppColors.apricot)
-                        
-                        Text(content.content)
-                            .titleM(weight: .medium)
-                            .foregroundColor(.white)
-                            .multilineTextAlignment(.center)
-                        
-                        if let author = content.author {
-                            Text("— \(author)")
-                                .body()
-                                .foregroundColor(.white.opacity(0.7))
-                        }
-                    }
-                } else {
-                    // Regular content styling
-                    Text(content.content)
-                        .body()
-                        .foregroundColor(.white)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-            }
+            Text(content.content)
+                .titleM(weight: .medium)
+                .foregroundColor(AppColors.inkPrimary)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
             
-            // Action buttons
-            HStack(spacing: AppSpacing.m) {
-                Button("Reflect") {
-                    Haptics.light()
-                    isReflecting = true
-                    // TODO: Open reflection prompt
-                }
-                .buttonStyle(InspirationButtonStyle(isPrimary: true))
-                .accessibilityLabel("Reflect on this \(content.category.rawValue.lowercased())")
-                .accessibilityHint("Opens a reflection prompt based on this content")
-                
-                Button("Try Later") {
-                    Haptics.light()
-                    // TODO: Save for later
-                }
-                .buttonStyle(InspirationButtonStyle(isPrimary: false))
-                .accessibilityLabel("Save this \(content.category.rawValue.lowercased()) for later")
-                .accessibilityHint("Saves this content to your saved items")
-                
-                Spacer()
+            if let author = content.author {
+                Text("— \(author)")
+                    .body()
+                    .foregroundColor(AppColors.inkSecondary)
             }
         }
-        .padding(AppSpacing.m)
+        .padding(AppSpacing.l)
         .background(
-            RoundedRectangle(cornerRadius: AppRadii.medium)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadii.medium)
-                        .stroke(.white.opacity(0.3), lineWidth: 1)
+            RoundedRectangle(cornerRadius: AppRadii.large)
+                .fill(
+                    LinearGradient(
+                        colors: [AppColors.blush.opacity(0.9), AppColors.lavender.opacity(0.9)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
                 )
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppRadii.large)
+                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: 12)
         )
-        .shadow(color: .black.opacity(0.1), radius: 8, x: 0, y: 4)
+    }
+}
+
+// MARK: - Tile Row
+
+private struct TileRow: View {
+    let content: InspirationContent
+    
+    var body: some View {
+        HStack(spacing: AppSpacing.m) {
+            ZStack {
+                Circle()
+                    .fill(content.category.iconColor.opacity(0.25))
+                    .frame(width: 44, height: 44)
+                Image(systemName: content.category.icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(content.category.iconColor)
+            }
+            
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text(content.category.rawValue)
+                    .titleL(weight: .semibold)
+                    .foregroundColor(AppColors.inkPrimary)
+                if !content.title.isEmpty {
+                    Text(content.title)
+                        .body()
+                        .foregroundColor(AppColors.inkSecondary)
+                        .lineLimit(2)
+                }
+            }
+            Spacer()
+        }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(content.category.rawValue). \(content.title)")
     }
 }
 
@@ -275,8 +263,7 @@ private let sampleInspirationContent: [InspirationContent] = [
 #Preview("Single Inspiration Card") {
     ZStack {
         GradientBackground.blushLavender
-        
-        InspirationCard(content: sampleInspirationContent[0])
+        QuoteHeroCard(content: sampleInspirationContent[0])
             .padding(AppSpacing.m)
     }
 }

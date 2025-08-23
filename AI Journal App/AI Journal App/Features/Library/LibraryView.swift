@@ -26,8 +26,11 @@ struct LibraryView: View {
     private var content: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.l) {
+                topBar
                 header
                 searchField
+                metricsRow
+                sectionHeader("Recent Reflections")
                 if viewModel.filtered.isEmpty {
                     emptyState
                 } else {
@@ -43,6 +46,35 @@ struct LibraryView: View {
             .padding(AppSpacing.m)
         }
         .appTheme()
+    }
+    
+    private var topBar: some View {
+        HStack {
+            Image(systemName: "chevron.left")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(AppColors.inkPrimary.opacity(0.6))
+            Spacer()
+            HStack(spacing: AppSpacing.s) {
+                Image(systemName: "book")
+                    .font(.system(size: 16, weight: .semibold))
+                Text("My Library").body(weight: .semibold)
+            }
+            .foregroundColor(AppColors.inkPrimary)
+            .padding(.horizontal, AppSpacing.l)
+            .padding(.vertical, AppSpacing.s)
+            .background(
+                Capsule()
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        Capsule().stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    )
+            )
+            .accessibilityLabel("My Library")
+            Spacer()
+            Image(systemName: "ellipsis")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(AppColors.inkPrimary.opacity(0.6))
+        }
     }
     
     private var header: some View {
@@ -74,6 +106,26 @@ struct LibraryView: View {
         .accessibilityLabel("Search past entries")
     }
     
+    private var metricsRow: some View {
+        HStack(spacing: AppSpacing.m) {
+            MetricTile(title: "Total Entries", value: "\(viewModel.entries.count)", gradient: LinearGradient(
+                gradient: Gradient(colors: [AppColors.sky.opacity(0.8), AppColors.lavender.opacity(0.7)]),
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+            MetricTile(title: "Streak Days", value: "\(computeStreakDays(viewModel.entries))", gradient: LinearGradient(
+                gradient: Gradient(colors: [AppColors.blush.opacity(0.85), AppColors.apricot.opacity(0.85)]),
+                startPoint: .topLeading, endPoint: .bottomTrailing
+            ))
+        }
+    }
+    
+    private func sectionHeader(_ text: String) -> some View {
+        Text(text)
+            .titleM(weight: .bold)
+            .foregroundColor(AppColors.inkPrimary)
+            .padding(.top, AppSpacing.s)
+    }
+    
     private var emptyState: some View {
         VStack(alignment: .center, spacing: AppSpacing.s) {
             Image(systemName: "book").font(.system(size: 40, weight: .semibold)).foregroundColor(AppColors.inkSecondary)
@@ -96,6 +148,17 @@ struct LibraryView: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter.localizedString(for: date, relativeTo: Date())
+    }
+    
+    private func computeStreakDays(_ entries: [JournalEntry]) -> Int {
+        let daysWithEntries = Set(entries.map { Calendar.current.startOfDay(for: $0.timestamp) })
+        var streak = 0
+        var currentDay = Calendar.current.startOfDay(for: Date())
+        while daysWithEntries.contains(currentDay) {
+            streak += 1
+            if let prev = Calendar.current.date(byAdding: .day, value: -1, to: currentDay) { currentDay = prev } else { break }
+        }
+        return streak
     }
 }
 
@@ -140,6 +203,36 @@ private struct EntryRow: View {
         let formatter = RelativeDateTimeFormatter()
         formatter.unitsStyle = .short
         return formatter.localizedString(for: entry.timestamp, relativeTo: Date())
+    }
+}
+
+private struct MetricTile: View {
+    let title: String
+    let value: String
+    let gradient: LinearGradient
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.s) {
+            Text(title).body().foregroundColor(AppColors.inkPrimary)
+            Text(value).titleXL(weight: .bold).foregroundColor(AppColors.inkPrimary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(AppSpacing.m)
+        .background(
+            RoundedRectangle(cornerRadius: AppRadii.large)
+                .fill(gradient)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppRadii.large)
+                        .fill(Color.white.opacity(0.08))
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppRadii.large)
+                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title) \(value)")
     }
 }
 

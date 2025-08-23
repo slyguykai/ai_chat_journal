@@ -17,6 +17,7 @@ struct LibraryView: View {
     var body: some View {
         ZStack {
             GradientBackground.blushLavender
+                .ignoresSafeArea(.container, edges: [.top, .bottom])
             content
         }
         .navigationBarHidden(true)
@@ -45,6 +46,9 @@ struct LibraryView: View {
             }
             .padding(AppSpacing.m)
         }
+        .scrollIndicators(.hidden)
+        .scrollContentBackground(.hidden)
+        .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
         .appTheme()
     }
     

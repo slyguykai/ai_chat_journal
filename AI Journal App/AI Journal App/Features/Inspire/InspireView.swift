@@ -56,66 +56,65 @@ struct InspireView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var body: some View {
-        NavigationView {
-            ZStack(alignment: .top) {
-                // Premium layered background
-                GradientBackground.blushLavender
-                    .overlay(
-                        LinearGradient(
-                            colors: [Color.white.opacity(0.15), Color.clear],
-                            startPoint: .top,
-                            endPoint: .center
-                        )
+        ZStack(alignment: .top) {
+            // Premium layered background
+            GradientBackground.blushLavender
+                .overlay(
+                    LinearGradient(
+                        colors: [Color.white.opacity(0.15), Color.clear],
+                        startPoint: .top,
+                        endPoint: .center
                     )
-                    .overlay(
-                        RadialGradient(
-                            colors: [Color.white.opacity(0.12), Color.clear],
-                            center: .topLeading,
-                            startRadius: 0,
-                            endRadius: 380
-                        )
+                )
+                .overlay(
+                    RadialGradient(
+                        colors: [Color.white.opacity(0.12), Color.clear],
+                        center: .topLeading,
+                        startRadius: 0,
+                        endRadius: 380
                     )
-                
-                ScrollView {
-                    VStack(spacing: AppSpacing.l) {
-                        TopBarCapsule(iconSystemName: "sparkles", title: "Daily Inspiration")
+                )
+                .ignoresSafeArea(.container, edges: [.top, .bottom])
+            
+            ScrollView {
+                VStack(spacing: AppSpacing.l) {
+                    TopBarCapsule(iconSystemName: "sparkles", title: "Daily Inspiration")
+                    
+                    // Title and subtitle block
+                    VStack(alignment: .leading, spacing: AppSpacing.s) {
+                        Text("Find Your Spark")
+                            .titleXL(weight: .bold)
+                            .foregroundColor(AppColors.inkPrimary)
+                            .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.4 : 0.0), radius: 1, x: 0, y: 1)
                         
-                        // Title and subtitle block
-                        VStack(alignment: .leading, spacing: AppSpacing.s) {
-                            Text("Find Your Spark")
-                                .titleXL(weight: .bold)
-                                .foregroundColor(AppColors.inkPrimary)
-                                .shadow(color: Color.black.opacity(colorScheme == .dark ? 0.4 : 0.0), radius: 1, x: 0, y: 1)
-                            
-                            Text("Discover daily quotes, affirmations, and mindful moments to inspire your journey.")
-                                .body()
-                                .foregroundColor(AppColors.inkSecondary)
-                                .fixedSize(horizontal: false, vertical: true)
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
+                        Text("Discover daily quotes, affirmations, and mindful moments to inspire your journey.")
+                            .body()
+                            .foregroundColor(AppColors.inkSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    // Quote hero card (gradient tile)
+                    QuoteHeroCard(content: inspirationContent.first { $0.category == .quote }!)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel("Daily quote: \(inspirationContent.first { $0.category == .quote }?.content ?? "")")
                         
-                        // Quote hero card (gradient tile)
-                        QuoteHeroCard(content: inspirationContent.first { $0.category == .quote }!)
-                            .accessibilityElement(children: .combine)
-                            .accessibilityLabel("Daily quote: \(inspirationContent.first { $0.category == .quote }?.content ?? "")")
-                            
-                        // List tiles with translucent glass style
-                        LazyVStack(spacing: AppSpacing.m) {
-                            ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
-                                GlassCard(cornerRadius: AppRadii.large) {
-                                    TileRow(content: content)
-                                }
+                    // List tiles with translucent glass style
+                    LazyVStack(spacing: AppSpacing.m) {
+                        ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
+                            GlassCard(cornerRadius: AppRadii.large) {
+                                TileRow(content: content)
                             }
                         }
-                        .padding(.bottom, AppSpacing.xl)
                     }
-                    .padding(.horizontal, AppSpacing.m)
-                    .padding(.top, AppSpacing.m)
+                    .padding(.bottom, AppSpacing.xl)
                 }
-                
-                // Fixed bubble header retained visually via TopBarCapsule; remove separate overlay
+                .padding(.horizontal, AppSpacing.m)
+                .padding(.top, AppSpacing.m)
             }
-            .navigationBarHidden(true)
+            .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
         }
     }
 }

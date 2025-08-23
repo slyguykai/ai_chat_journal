@@ -13,6 +13,7 @@ struct TodayView: View {
     var body: some View {
         ZStack {
             GradientBackground.peachCream
+                .ignoresSafeArea(.container, edges: [.top, .bottom])
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
                     TopBarCapsule(iconSystemName: "house", title: "Today")
@@ -24,6 +25,8 @@ struct TodayView: View {
                 .padding(.top, AppSpacing.m)
             }
             .scrollIndicators(.hidden)
+            .scrollContentBackground(.hidden)
+            .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
         }
         .appTheme()
     }

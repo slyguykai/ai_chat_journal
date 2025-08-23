@@ -16,7 +16,7 @@ struct StatsView: View {
     }
     
     var body: some View {
-        ZStack { GradientBackground.peachCream }
+        ZStack { GradientBackground.peachCream.ignoresSafeArea(.container, edges: [.top, .bottom]) }
             .overlay(
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppSpacing.l) {
@@ -30,6 +30,9 @@ struct StatsView: View {
                     .padding(.top, AppSpacing.m)
                     .appTheme()
                 }
+                .scrollIndicators(.hidden)
+                .scrollContentBackground(.hidden)
+                .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
             )
     }
     

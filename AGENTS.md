@@ -1,5 +1,3 @@
-Of course. Here is the `AGENTS.MD` file, crafted based on your vision and the principles of top technology companies. You can copy this directly into a text editor and save it as `AGENTS.MD` in the root of your project repository.
-
 # AGENTS.MD: Constitution for the AI Journal iOS Application
 
 This document serves as the primary set of instructions and constraints for any AI agent working on this project. Adherence to these principles is mandatory. This is a living document; it should be updated as the project's requirements and architecture evolve.
@@ -121,8 +119,8 @@ The agent must validate its UI implementations against the following checklist.
 
 ### 6.1. Build, Test, & Run Commands
 
-  - **Build**: `xcodebuild build -scheme AIJournalApp -destination 'platform=iOS Simulator,name=iPhone 15 Pro'`
-  - **Test**: `xcodebuild test -scheme AIJournalApp -destination 'platform=iOS Simulator,name=iPhone 15 Pro'`
+  - **Build**: `xcodebuild build -scheme AIJournalApp -destination 'platform=iOS Simulator,name=iPhone 16 Pro'`
+  - **Test**: `xcodebuild test -scheme AIJournalApp -destination 'platform=iOS Simulator,name=iPhone 16 Pro'`
   - **Run**: Use the standard Xcode "Run" command or `xcodebuild install` and `xcrun simctl launch`.
 
 ### 6.2. Testing Mandate (TDD)

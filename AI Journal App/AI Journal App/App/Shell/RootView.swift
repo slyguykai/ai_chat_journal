@@ -78,7 +78,7 @@ struct RootView: View {
                     .tag(AppTab.brainDump)
                 
                 // Library Tab
-                EntryListView(viewModel: container.makeEntryListViewModel())
+                LibraryView(viewModel: LibraryViewModel(entryStore: container.entryStore))
                     .tabItem {
                         TabItemView(tab: .library, isSelected: selectedTab == .library)
                     }

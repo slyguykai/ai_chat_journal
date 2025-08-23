@@ -19,18 +19,22 @@ struct BrainDumpView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: AppSpacing.l) {
-                // Header
-                VStack(spacing: AppSpacing.s) {
-                    Text("Brain Dump")
-                        .titleL(weight: .semibold)
-                        .foregroundColor(AppColors.inkPrimary)
-                    
-                    Text("Let your thoughts flow freely")
-                        .body()
-                        .foregroundColor(AppColors.inkSecondary)
-                }
-                .padding(.top, AppSpacing.s)
+            ZStack {
+                // Animated background
+                BrainDumpBackground()
+                
+                VStack(spacing: AppSpacing.l) {
+                    // Header
+                    VStack(spacing: AppSpacing.s) {
+                        Text("Brain Dump")
+                            .titleL(weight: .semibold)
+                            .foregroundColor(.white)
+                        
+                        Text("Let your thoughts flow freely")
+                            .body()
+                            .foregroundColor(.white.opacity(0.8))
+                    }
+                    .padding(.top, AppSpacing.s)
                 
                 // Text Editor
                 VStack(alignment: .leading, spacing: AppSpacing.s) {
@@ -38,13 +42,13 @@ struct BrainDumpView: View {
                         HStack {
                             Text("What's on your mind?")
                                 .body(weight: .medium)
-                                .foregroundColor(AppColors.inkPrimary)
+                                .foregroundColor(.white)
                             
                             Spacer()
                             
                             Text("\(viewModel.characterCount) characters")
                                 .caption()
-                                .foregroundColor(AppColors.inkSecondary)
+                                .foregroundColor(.white.opacity(0.7))
                         }
                     }
                     
@@ -64,9 +68,9 @@ struct BrainDumpView: View {
                                     .font(.system(size: 48))
                                     .foregroundColor(AppColors.inkSecondary.opacity(0.6))
                                 
-                                Text("Tap to start brain dumping")
-                                    .body()
-                                    .foregroundColor(AppColors.inkSecondary)
+                                                            Text("Tap to start brain dumping")
+                                .body()
+                                .foregroundColor(.white.opacity(0.7))
                                     .multilineTextAlignment(.center)
                             }
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -132,10 +136,10 @@ struct BrainDumpView: View {
                     }
                 }
                 
-                Spacer()
+                    Spacer()
+                }
+                .padding(AppSpacing.m)
             }
-            .padding(AppSpacing.m)
-            .background(AppColors.canvas)
             .navigationBarHidden(true)
             .scaleEffect(showContent ? 1.0 : 0.95)
             .opacity(showContent ? 1.0 : 0.0)

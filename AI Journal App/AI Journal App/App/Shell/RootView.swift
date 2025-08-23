@@ -123,14 +123,18 @@ struct RootView: View {
             }
             .accentColor(AppColors.coral)
             
-            // Floating center button overlay
+            // Floating center button overlay - positioned in middle tab slot
             VStack {
                 Spacer()
                 
-                HStack {
-                    Spacer()
+                HStack(spacing: 0) {
+                    // Space for first tab (Today)
                     Spacer()
                     
+                    // Space for second tab (Inspire)
+                    Spacer()
+                    
+                    // Center button in middle tab position
                     CircularCTA(
                         icon: "plus",
                         size: .large,
@@ -150,10 +154,14 @@ struct RootView: View {
                     .scaleEffect(showBrainDumpTransition ? 1.1 : 1.0)
                     .opacity(showBrainDumpTransition ? 0.8 : 1.0)
                     
+                    // Space for fourth tab (Library)
                     Spacer()
+                    
+                    // Space for fifth tab (Stats)
                     Spacer()
                 }
-                .padding(.bottom, 34) // Position above tab bar (typically 49pt high + safe area)
+                .padding(.bottom, 20) // Position to align with tab icons
+                .padding(.horizontal, 0) // Let spacers handle distribution
             }
         }
     }
@@ -215,47 +223,7 @@ struct TodayView: View {
 
 
 
-struct InspireView: View {
-    var body: some View {
-        VStack(spacing: AppSpacing.l) {
-            Text("Inspiration")
-                .titleL(weight: .semibold)
-                .foregroundColor(AppColors.inkPrimary)
-            
-            Text("Prompts and ideas to spark your creativity")
-                .body()
-                .foregroundColor(AppColors.inkSecondary)
-                .multilineTextAlignment(.center)
-            
-            Spacer()
-            
-            VStack(spacing: AppSpacing.m) {
-                PromptCard(
-                    icon: "lightbulb",
-                    title: "Random Prompt",
-                    description: "Get a creative writing prompt to inspire your next entry"
-                )
-                
-                PromptCard(
-                    icon: "heart",
-                    title: "Gratitude",
-                    description: "Reflect on what you're grateful for today"
-                )
-                
-                PromptCard(
-                    icon: "target",
-                    title: "Goals",
-                    description: "Think about your aspirations and dreams"
-                )
-            }
-            
-            Spacer()
-        }
-        .padding(AppSpacing.m)
-        .background(AppColors.canvas)
-        .appTheme()
-    }
-}
+// InspireView is now defined in Features/Inspire/InspireView.swift
 
 struct StatsView: View {
     var body: some View {
@@ -305,60 +273,7 @@ struct StatCard: View {
     }
 }
 
-struct PromptCard: View {
-    let icon: String
-    let title: String
-    let description: String
-    
-    var body: some View {
-        Button(action: {
-            Haptics.light()
-            // TODO: Handle prompt action
-        }) {
-            HStack(spacing: AppSpacing.m) {
-                ZStack {
-                    Circle()
-                        .fill(AppColors.blush.opacity(0.2))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: icon)
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundColor(AppColors.coral)
-                }
-                
-                VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                    Text(title)
-                        .body(weight: .semibold)
-                        .foregroundColor(AppColors.inkPrimary)
-                        .multilineTextAlignment(.leading)
-                    
-                    Text(description)
-                        .caption()
-                        .foregroundColor(AppColors.inkSecondary)
-                        .multilineTextAlignment(.leading)
-                }
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .font(.system(size: 14, weight: .medium))
-                    .foregroundColor(AppColors.inkSecondary)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppSpacing.m)
-            .background(AppColors.surface)
-            .cornerRadius(AppRadii.medium)
-            .overlay(
-                RoundedRectangle(cornerRadius: AppRadii.medium)
-                    .stroke(AppColors.divider, lineWidth: 1)
-            )
-        }
-        .buttonStyle(PlainButtonStyle())
-        .accessibilityLabel(title)
-        .accessibilityHint(description)
-        .accessibilityAddTraits(.isButton)
-    }
-}
+// PromptCard removed - InspireView now uses InspirationCard
 
 // MARK: - Preview
 

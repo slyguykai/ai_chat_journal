@@ -64,13 +64,13 @@ struct OnboardingPermissionsView: View {
                 Button("Grant Permissions") {
                     requestAllPermissions()
                 }
-                .buttonStyle(PrimaryButtonStyle())
+                .buttonStyle(InspirationButtonStyle(isPrimary: true))
                 .disabled(isRequestingPermissions)
                 
                 Button("Skip for Now") {
                     // TODO: Navigate to main app
                 }
-                .buttonStyle(SecondaryButtonStyle())
+                .buttonStyle(InspirationButtonStyle(isPrimary: false))
             }
             
             if isRequestingPermissions {

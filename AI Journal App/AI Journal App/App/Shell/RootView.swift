@@ -54,33 +54,30 @@ struct RootView: View {
                         .tag(TabItem.stats)
                 }
                 .accentColor(AppColors.coral)
+                // Place premium glass behind content & tabs
+                .background(alignment: .bottom) {
+                    TabBarBackgroundView(selectedIndex: tabIndex(for: selectedTab))
+                }
             }
-            // Background glass under the tab area
-            .safeAreaInset(edge: .bottom) {
-                TabBarBackgroundView(selectedIndex: tabIndex(for: selectedTab))
-                    .frame(height: 92)
-            }
-            // Floating CTA overlay above the glass
-            .safeAreaInset(edge: .bottom) {
-                HStack { Spacer()
-                    CircularCTA(
-                        icon: "plus",
-                        size: .large,
-                        action: {
-                            Haptics.light()
-                            withAnimation(.easeInOut(duration: 0.2)) { showBrainDumpTransition = true }
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                                selectedTab = .brainDump
-                                showBrainDumpTransition = false
-                            }
-                        },
-                        accessibilityLabel: TabItem.brainDump.accessibilityLabel,
-                        accessibilityHint: TabItem.brainDump.accessibilityHint
-                    )
-                    .scaleEffect(showBrainDumpTransition ? 1.05 : 1.0)
-                    .opacity(showBrainDumpTransition ? 0.9 : 1.0)
-                    Spacer() }
-                .padding(.bottom, 4)
+            // Floating CTA overlay above the glass, limited hit area
+            .overlay(alignment: .bottom) {
+                CircularCTA(
+                    icon: "plus",
+                    size: .large,
+                    action: {
+                        Haptics.light()
+                        withAnimation(.easeInOut(duration: 0.2)) { showBrainDumpTransition = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                            selectedTab = .brainDump
+                            showBrainDumpTransition = false
+                        }
+                    },
+                    accessibilityLabel: TabItem.brainDump.accessibilityLabel,
+                    accessibilityHint: TabItem.brainDump.accessibilityHint
+                )
+                .scaleEffect(showBrainDumpTransition ? 1.05 : 1.0)
+                .opacity(showBrainDumpTransition ? 0.9 : 1.0)
+                .padding(.bottom, 12)
             }
         }
         .toolbarBackground(.visible, for: .tabBar)

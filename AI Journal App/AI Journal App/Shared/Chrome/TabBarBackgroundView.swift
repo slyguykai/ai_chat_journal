@@ -13,24 +13,35 @@ struct TabBarBackgroundView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
-                // Ultra-thin material tinted by canvas
-                Rectangle()
-                    .fill(.ultraThinMaterial)
-                    .background(AppColors.canvas.opacity(0.85))
-                    .ignoresSafeArea()
+                // Canvas tint below material for premium look
+                ZStack {
+                    Rectangle().fill(AppColors.canvas.opacity(0.75))
+                    Rectangle().fill(.ultraThinMaterial)
+                }
                 
                 // Top divider line
-                VStack(spacing: 0) {
-                    Rectangle()
-                        .fill(AppColors.divider)
-                        .frame(height: 1)
-                    Spacer()
-                }
+                Rectangle()
+                    .fill(AppColors.divider)
+                    .frame(height: 1)
+                    .frame(maxHeight: .infinity, alignment: .top)
                 
                 // Soft radial glow under selected tab
                 glow(in: geo.size)
             }
+            .compositingGroup()
+            .mask(
+                LinearGradient(
+                    gradient: Gradient(stops: [
+                        .init(color: .clear, location: 0.0),
+                        .init(color: .black, location: 0.55),
+                        .init(color: .black, location: 1.0)
+                    ]),
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
         }
+        .frame(height: 92)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -41,12 +52,11 @@ struct TabBarBackgroundView: View {
         let x = width * (CGFloat(selectedIndex) + 0.5)
         return RadialGradient(
             colors: [AppColors.coral.opacity(0.12), .clear],
-            center: .init(x: x / max(size.width, 1), y: 0.35),
+            center: .init(x: x / max(size.width, 1), y: 0.5),
             startRadius: 6,
             endRadius: 80
         )
         .blendMode(.plusLighter)
-        .ignoresSafeArea()
     }
 }
 
@@ -54,7 +64,6 @@ struct TabBarBackgroundView: View {
     VStack {
         Spacer()
         TabBarBackgroundView(selectedIndex: 2)
-            .frame(height: 100)
     }
 }
 

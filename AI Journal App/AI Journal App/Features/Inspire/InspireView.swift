@@ -57,7 +57,7 @@ struct InspireView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // Premium layered background
+            // Premium layered background (no hit testing)
             GradientBackground.blushLavender
                 .overlay(
                     LinearGradient(
@@ -65,6 +65,7 @@ struct InspireView: View {
                         startPoint: .top,
                         endPoint: .center
                     )
+                    .allowsHitTesting(false)
                 )
                 .overlay(
                     RadialGradient(
@@ -73,6 +74,7 @@ struct InspireView: View {
                         startRadius: 0,
                         endRadius: 380
                     )
+                    .allowsHitTesting(false)
                 )
                 .ignoresSafeArea(.container, edges: [.top, .bottom])
             
@@ -112,10 +114,10 @@ struct InspireView: View {
                 }
                 .padding(.horizontal, AppSpacing.m)
                 .padding(.top, AppSpacing.m)
+                .contentShape(Rectangle())
             }
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
-            .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
         }
     }
 }

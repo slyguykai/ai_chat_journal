@@ -12,18 +12,20 @@ struct CardPressModifier: ViewModifier {
     let onTap: (() -> Void)?
     
     func body(content: Content) -> some View {
-        let press = LongPressGesture(minimumDuration: 0.01)
+        // Use a short long-press with a small max distance so vertical drags (scroll) win
+        let press = LongPressGesture(minimumDuration: 0.05, maximumDistance: 8)
             .updating($isPressing) { _, state, _ in
                 if state == false { Haptics.light() }
                 state = true
             }
             .onEnded { _ in onTap?() }
         
-        content
+        return content
             .scaleEffect(isPressing ? 0.98 : 1.0)
             .offset(y: isPressing ? 1 : 0)
             .animation(.snappy, value: isPressing)
-            .gesture(press)
+            // Attach simultaneously so ScrollView can still receive pan gestures
+            .simultaneousGesture(press)
     }
 }
 

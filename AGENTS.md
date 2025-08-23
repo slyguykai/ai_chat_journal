@@ -137,6 +137,12 @@ The agent must validate its UI implementations against the following checklist.
       - `docs:` for documentation-only changes.
       - `test:` for adding missing tests or correcting existing tests.
       - `chore:` for changes to the build process or auxiliary tools.
+      
+## 7\. UI & Animation Mandates
+
+- **Prefer Native Animations:** All animations and transitions **MUST** be implemented using native SwiftUI APIs like `matchedGeometryEffect`, `phaseAnimator`, and custom `AnyTransition`.
+- **Fluidity is Key:** Animations should be responsive and interruptible. Use physics-based animations (e.g., `.spring()`) for a natural feel.
+- **No Abrupt Changes:** State changes in the UI must always be animated using `withAnimation`.
 
 <!-- end list -->
 

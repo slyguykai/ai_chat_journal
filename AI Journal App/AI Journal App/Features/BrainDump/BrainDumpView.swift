@@ -12,6 +12,7 @@ struct BrainDumpView: View {
     @StateObject private var viewModel: BrainDumpViewModel
     @FocusState private var isTextEditorFocused: Bool
     @State private var showContent = false
+    @State private var selectedMood: MoodType? = nil
     
     init(viewModel: BrainDumpViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -23,120 +24,87 @@ struct BrainDumpView: View {
                 // Animated background
                 BrainDumpBackground()
                 
+                // Central glass card
                 VStack(spacing: AppSpacing.l) {
-                    // Header
-                    VStack(spacing: AppSpacing.s) {
-                        Text("Brain Dump")
-                            .titleL(weight: .semibold)
-                            .foregroundColor(.white)
-                        
-                        Text("Let your thoughts flow freely")
-                            .body()
-                            .foregroundColor(.white.opacity(0.8))
-                    }
-                    .padding(.top, AppSpacing.s)
-                
-                // Text Editor
-                VStack(alignment: .leading, spacing: AppSpacing.s) {
-                    if viewModel.state.isEditing {
-                        HStack {
-                            Text("What's on your mind?")
-                                .body(weight: .medium)
+                    VStack(alignment: .leading, spacing: AppSpacing.m) {
+                        // Title
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text("Let your thoughts flow freely")
+                                .titleL(weight: .semibold)
                                 .foregroundColor(.white)
                             
-                            Spacer()
-                            
-                            Text("\(viewModel.characterCount) characters")
-                                .caption()
-                                .foregroundColor(.white.opacity(0.7))
+                            if selectedMood != nil {
+                                Text("Mood selected: \(selectedMood!.accessibilityLabel)")
+                                    .caption()
+                                    .foregroundColor(.white.opacity(0.8))
+                            }
                         }
+                        
+                        // Mood row
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: AppSpacing.m) {
+                                ForEach(MoodType.allCases, id: \.self) { mood in
+                                    Button {
+                                        selectedMood = mood
+                                        Haptics.light()
+                                    } label: {
+                                        MoodEmojiView(
+                                            type: mood,
+                                            size: .large,
+                                            isSelected: selectedMood == mood
+                                        )
+                                    }
+                                    .buttonStyle(PlainButtonStyle())
+                                    .accessibilityLabel(mood.accessibilityLabel)
+                                    .accessibilityAddTraits(selectedMood == mood ? .isSelected : [])
+                                }
+                            }
+                        }
+                        
+                        // Text editor with placeholder overlay
+                        ZStack(alignment: .topLeading) {
+                            TextEditor(text: Binding(
+                                get: { viewModel.state.currentText },
+                                set: { viewModel.updateText($0) }
+                            ))
+                            .font(AppTypography.body)
+                            .foregroundColor(AppColors.inkPrimary)
+                            .focused($isTextEditorFocused)
+                            .disabled(viewModel.isLoading)
+                            .frame(minHeight: 180)
+                            
+                            if viewModel.state.currentText.isEmpty {
+                                Text("Jot a quick note…")
+                                    .body()
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .padding(.top, AppSpacing.s)
+                                    .padding(.horizontal, AppSpacing.s)
+                                    .allowsHitTesting(false)
+                            }
+                        }
+                        .padding(AppSpacing.m)
+                        .background(
+                            // Glass style: blur + subtle white overlay + stroke
+                            RoundedRectangle(cornerRadius: AppRadii.large)
+                                .fill(.ultraThinMaterial)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppRadii.large)
+                                        .fill(Color.white.opacity(0.12))
+                                )
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppRadii.large)
+                                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                                )
+                        )
                     }
                     
-                    ZStack(alignment: .topLeading) {
-                        TextEditor(text: Binding(
-                            get: { viewModel.state.currentText },
-                            set: { viewModel.updateText($0) }
-                        ))
-                        .font(AppTypography.body)
-                        .foregroundColor(AppColors.inkPrimary)
-                        .focused($isTextEditorFocused)
-                        .disabled(viewModel.isLoading)
-                        
-                        if !viewModel.state.isEditing {
-                            VStack(spacing: AppSpacing.s) {
-                                Image(systemName: "brain.head.profile")
-                                    .font(.system(size: 48))
-                                    .foregroundColor(AppColors.inkSecondary.opacity(0.6))
-                                
-                                                            Text("Tap to start brain dumping")
-                                .body()
-                                .foregroundColor(.white.opacity(0.7))
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.clear)
-                            .contentShape(Rectangle())
-                            .onTapGesture {
-                                viewModel.startEditing()
-                                isTextEditorFocused = true
-                            }
-                        }
+                    // Primary CTA
+                    Button("Save") {
+                        viewModel.save()
                     }
-                    .frame(minHeight: 200)
-                    .padding(AppSpacing.m)
-                    .background(AppColors.surface)
-                    .cornerRadius(AppRadii.large)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppRadii.large)
-                            .stroke(AppColors.divider, lineWidth: 1)
-                    )
-                }
-                
-                // Action Buttons
-                if viewModel.state.isEditing {
-                    HStack(spacing: AppSpacing.m) {
-                        Button("Clear") {
-                            viewModel.reset()
-                        }
-                        .buttonStyle(SecondaryButtonStyle())
-                        .accessibilityLabel("Clear text")
-                        
-                        Button("Save Entry") {
-                            viewModel.save()
-                        }
-                        .buttonStyle(PrimaryButtonStyle())
-                        .disabled(!viewModel.canSave)
-                        .accessibilityLabel("Save brain dump entry")
-                    }
-                }
-                
-                // Status Messages
-                if case .saved = viewModel.state {
-                    HStack(spacing: AppSpacing.s) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(AppColors.mint)
-                        
-                        Text("Entry saved successfully!")
-                            .body(weight: .medium)
-                            .foregroundColor(AppColors.mint)
-                    }
-                    .padding(AppSpacing.m)
-                    .background(AppColors.mint.opacity(0.1))
-                    .cornerRadius(AppRadii.medium)
-                }
-                
-                if viewModel.isLoading {
-                    HStack(spacing: AppSpacing.s) {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                        
-                        Text("Saving...")
-                            .body()
-                            .foregroundColor(AppColors.inkSecondary)
-                    }
-                }
-                
-                    Spacer()
+                    .buttonStyle(PrimaryButtonStyle())
+                    .disabled(!viewModel.canSave)
+                    .accessibilityLabel("Save brain dump entry")
                 }
                 .padding(AppSpacing.m)
             }
@@ -149,8 +117,11 @@ struct BrainDumpView: View {
                     showContent = true
                 }
             }
-            .onDisappear {
-                showContent = false
+            .onDisappear { showContent = false }
+            .onChange(of: viewModel.state) { newState in
+                if case .saved = newState {
+                    Haptics.light()
+                }
             }
         }
         .alert("Error", isPresented: Binding<Bool>(
@@ -160,19 +131,13 @@ struct BrainDumpView: View {
             },
             set: { _ in }
         )) {
-            Button("OK") {
-                viewModel.dismissError()
-            }
+            Button("OK") { viewModel.dismissError() }
         } message: {
-            if case .error(let message) = viewModel.state {
-                Text(message)
-            }
+            if case .error(let message) = viewModel.state { Text(message) }
         }
         .onTapGesture {
             // Dismiss keyboard when tapping outside
-            if isTextEditorFocused {
-                isTextEditorFocused = false
-            }
+            if isTextEditorFocused { isTextEditorFocused = false }
         }
     }
 }

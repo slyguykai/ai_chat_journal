@@ -7,49 +7,10 @@
 
 import SwiftUI
 
-/// Main tab navigation options
-enum AppTab: String, CaseIterable {
-    case today = "today"
-    case inspire = "inspire"
-    case brainDump = "brain_dump"
-    case library = "library"
-    case stats = "stats"
-    
-    var title: String {
-        switch self {
-        case .today: return "Today"
-        case .inspire: return "Inspire"
-        case .brainDump: return "Brain Dump"
-        case .library: return "Library"
-        case .stats: return "Stats"
-        }
-    }
-    
-    var systemImage: String {
-        switch self {
-        case .today: return "house"
-        case .inspire: return "sparkles"
-        case .brainDump: return "plus.circle.fill"
-        case .library: return "books.vertical"
-        case .stats: return "chart.line.uptrend.xyaxis"
-        }
-    }
-    
-    var accessibilityLabel: String {
-        switch self {
-        case .today: return "Today view"
-        case .inspire: return "Inspire view"
-        case .brainDump: return "Brain dump view"
-        case .library: return "Library view"
-        case .stats: return "Statistics view"
-        }
-    }
-}
-
 /// Main root view with tabbed navigation
 struct RootView: View {
     @StateObject private var container = AppContainer()
-    @State private var selectedTab: AppTab = .today
+    @State private var selectedTab: TabItem = .today
     @State private var showBrainDumpTransition = false
     
     var body: some View {
@@ -60,14 +21,14 @@ struct RootView: View {
                     .tabItem {
                         TabItemView(tab: .today, isSelected: selectedTab == .today)
                     }
-                    .tag(AppTab.today)
+                    .tag(TabItem.today)
                 
                 // Inspire Tab
                 InspireView()
                     .tabItem {
                         TabItemView(tab: .inspire, isSelected: selectedTab == .inspire)
                     }
-                    .tag(AppTab.inspire)
+                    .tag(TabItem.inspire)
                 
                 // Brain Dump Tab (Center - hidden tab item)
                 BrainDumpView(viewModel: container.makeBrainDumpViewModel())
@@ -75,21 +36,21 @@ struct RootView: View {
                         Image(systemName: "").hidden()
                         Text("").hidden()
                     }
-                    .tag(AppTab.brainDump)
+                    .tag(TabItem.brainDump)
                 
                 // Library Tab
                 LibraryView(viewModel: LibraryViewModel(entryStore: container.entryStore))
                     .tabItem {
                         TabItemView(tab: .library, isSelected: selectedTab == .library)
                     }
-                    .tag(AppTab.library)
+                    .tag(TabItem.library)
                 
                 // Stats Tab
                 StatsView(viewModel: StatsViewModel())
                     .tabItem {
                         TabItemView(tab: .stats, isSelected: selectedTab == .stats)
                     }
-                    .tag(AppTab.stats)
+                    .tag(TabItem.stats)
             }
             .accentColor(AppColors.coral)
             
@@ -109,11 +70,14 @@ struct RootView: View {
                                 showBrainDumpTransition = false
                             }
                         },
-                        accessibilityLabel: "Brain Dump",
-                        accessibilityHint: "Open brain dump to quickly capture your thoughts"
+                        accessibilityLabel: TabItem.brainDump.accessibilityLabel,
+                        accessibilityHint: TabItem.brainDump.accessibilityHint
                     )
+                    .accessibilityLabel(TabItem.brainDump.accessibilityLabel)
+                    .accessibilityHint(TabItem.brainDump.accessibilityHint)
                     .scaleEffect(showBrainDumpTransition ? 1.1 : 1.0)
                     .opacity(showBrainDumpTransition ? 0.8 : 1.0)
+                    .frame(minWidth: 44, minHeight: 44)
                     Spacer()
                     Spacer()
                 }
@@ -126,17 +90,19 @@ struct RootView: View {
 // MARK: - Tab Item View
 
 struct TabItemView: View {
-    let tab: AppTab
+    let tab: TabItem
     let isSelected: Bool
     
     var body: some View {
         VStack(spacing: 4) {
             Image(systemName: tab.systemImage)
                 .font(.system(size: 20, weight: .medium))
+                .frame(minWidth: 44, minHeight: 44)
             Text(tab.title)
                 .font(.caption2)
         }
         .accessibilityLabel(tab.accessibilityLabel)
+        .accessibilityHint(tab.accessibilityHint)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 }

@@ -84,7 +84,8 @@ struct RootView: View {
             }
         }
         .toolbarBackground(.visible, for: .tabBar)
-        .toolbarBackground(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .navigationBar)
+        .navigationBarBackButtonHidden()
     }
     
     private func tabIndex(for item: TabItem) -> Int {

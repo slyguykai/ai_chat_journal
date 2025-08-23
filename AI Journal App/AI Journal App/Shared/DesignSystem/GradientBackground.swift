@@ -20,6 +20,7 @@ struct GradientBackground: View {
 enum GradientPreset {
     case sunrise
     case blushLavender
+    case peachCream
     
     /// Linear gradient for the preset
     var gradient: LinearGradient {
@@ -43,26 +44,33 @@ enum GradientPreset {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
+        case .peachCream:
+            return LinearGradient(
+                gradient: Gradient(stops: [
+                    .init(color: Color(hex: "FFEAD6"), location: 0.0),
+                    .init(color: Color(hex: "FFD3A1"), location: 1.0)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         }
     }
     
     /// Display name for the preset
     var name: String {
         switch self {
-        case .sunrise:
-            return "Sunrise"
-        case .blushLavender:
-            return "Blush Lavender"
+        case .sunrise: return "Sunrise"
+        case .blushLavender: return "Blush Lavender"
+        case .peachCream: return "Peach Cream"
         }
     }
     
     /// Description of the gradient
     var description: String {
         switch self {
-        case .sunrise:
-            return "Warm orange to coral gradient"
-        case .blushLavender:
-            return "Soft pink to lavender gradient"
+        case .sunrise: return "Warm orange to coral gradient"
+        case .blushLavender: return "Soft pink to lavender gradient"
+        case .peachCream: return "Peach to apricot gradient"
         }
     }
 }
@@ -70,15 +78,9 @@ enum GradientPreset {
 // MARK: - Convenience Initializers
 
 extension GradientBackground {
-    /// Sunrise gradient background
-    static var sunrise: GradientBackground {
-        GradientBackground(preset: .sunrise)
-    }
-    
-    /// Blush lavender gradient background
-    static var blushLavender: GradientBackground {
-        GradientBackground(preset: .blushLavender)
-    }
+    static var sunrise: GradientBackground { GradientBackground(preset: .sunrise) }
+    static var blushLavender: GradientBackground { GradientBackground(preset: .blushLavender) }
+    static var peachCream: GradientBackground { GradientBackground(preset: .peachCream) }
 }
 
 // MARK: - Preview
@@ -91,52 +93,10 @@ extension GradientBackground {
                 .fontWeight(.semibold)
                 .foregroundColor(.primary)
                 .padding(.top, 16)
-            
             VStack(spacing: 16) {
                 GradientPreviewCard(preset: .sunrise)
                 GradientPreviewCard(preset: .blushLavender)
-            }
-            
-            Text("Usage Examples")
-                .font(.headline)
-                .foregroundColor(.primary)
-                .padding(.top, 24)
-            
-            VStack(spacing: 16) {
-                // Example with content overlay
-                ZStack {
-                    GradientBackground.sunrise
-                        .frame(height: 120)
-                        .cornerRadius(24)
-                    
-                    VStack(spacing: 8) {
-                        Text("Good Morning!")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Start your day with reflection")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                }
-                
-                ZStack {
-                    GradientBackground.blushLavender
-                        .frame(height: 120)
-                        .cornerRadius(24)
-                    
-                    VStack(spacing: 8) {
-                        Text("Evening Calm")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                        
-                        Text("Time to unwind and reflect")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                    }
-                }
+                GradientPreviewCard(preset: .peachCream)
             }
         }
         .padding(16)
@@ -152,52 +112,10 @@ extension GradientBackground {
                 .fontWeight(.semibold)
                 .foregroundColor(.white)
                 .padding(.top, 16)
-            
             VStack(spacing: 16) {
                 GradientPreviewCard(preset: .sunrise, isDark: true)
                 GradientPreviewCard(preset: .blushLavender, isDark: true)
-            }
-            
-            Text("Usage Examples")
-                .font(.headline)
-                .foregroundColor(.white)
-                .padding(.top, 24)
-            
-            VStack(spacing: 16) {
-                // Example with content overlay
-                ZStack {
-                    GradientBackground.sunrise
-                        .frame(height: 120)
-                        .cornerRadius(24)
-                    
-                    VStack(spacing: 8) {
-                        Text("Good Morning!")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                        
-                        Text("Start your day with reflection")
-                            .font(.body)
-                            .foregroundColor(.white.opacity(0.9))
-                    }
-                }
-                
-                ZStack {
-                    GradientBackground.blushLavender
-                        .frame(height: 120)
-                        .cornerRadius(24)
-                    
-                    VStack(spacing: 8) {
-                        Text("Evening Calm")
-                            .font(.title3)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                        
-                        Text("Time to unwind and reflect")
-                            .font(.body)
-                            .foregroundColor(.secondary)
-                    }
-                }
+                GradientPreviewCard(preset: .peachCream, isDark: true)
             }
         }
         .padding(16)
@@ -220,14 +138,11 @@ private struct GradientPreviewCard: View {
                         .font(.body)
                         .fontWeight(.semibold)
                         .foregroundColor(isDark ? .white : .primary)
-                    
                     Text(preset.description)
                         .font(.caption)
                         .foregroundColor(isDark ? .white.opacity(0.7) : .secondary)
                 }
-                
                 Spacer()
-                
                 RoundedRectangle(cornerRadius: 12)
                     .fill(preset.gradient)
                     .frame(width: 60, height: 40)

@@ -17,46 +17,31 @@ enum AppTab: String, CaseIterable {
     
     var title: String {
         switch self {
-        case .today:
-            return "Today"
-        case .inspire:
-            return "Inspire"
-        case .brainDump:
-            return "Brain Dump"
-        case .library:
-            return "Library"
-        case .stats:
-            return "Stats"
+        case .today: return "Today"
+        case .inspire: return "Inspire"
+        case .brainDump: return "Brain Dump"
+        case .library: return "Library"
+        case .stats: return "Stats"
         }
     }
     
     var systemImage: String {
         switch self {
-        case .today:
-            return "house"
-        case .inspire:
-            return "sparkles"
-        case .brainDump:
-            return "plus.circle.fill"
-        case .library:
-            return "books.vertical"
-        case .stats:
-            return "chart.line.uptrend.xyaxis"
+        case .today: return "house"
+        case .inspire: return "sparkles"
+        case .brainDump: return "plus.circle.fill"
+        case .library: return "books.vertical"
+        case .stats: return "chart.line.uptrend.xyaxis"
         }
     }
     
     var accessibilityLabel: String {
         switch self {
-        case .today:
-            return "Today view"
-        case .inspire:
-            return "Inspire view"
-        case .brainDump:
-            return "Brain dump view"
-        case .library:
-            return "Library view"
-        case .stats:
-            return "Statistics view"
+        case .today: return "Today view"
+        case .inspire: return "Inspire view"
+        case .brainDump: return "Brain dump view"
+        case .library: return "Library view"
+        case .stats: return "Statistics view"
         }
     }
 }
@@ -70,79 +55,55 @@ struct RootView: View {
     var body: some View {
         ZStack {
             TabView(selection: $selectedTab) {
-                // Today Tab
+                // Today Tab (from Features/Today)
                 TodayView()
                     .tabItem {
-                        TabItemView(
-                            tab: .today,
-                            isSelected: selectedTab == .today
-                        )
+                        TabItemView(tab: .today, isSelected: selectedTab == .today)
                     }
                     .tag(AppTab.today)
                 
                 // Inspire Tab
                 InspireView()
                     .tabItem {
-                        TabItemView(
-                            tab: .inspire,
-                            isSelected: selectedTab == .inspire
-                        )
+                        TabItemView(tab: .inspire, isSelected: selectedTab == .inspire)
                     }
                     .tag(AppTab.inspire)
                 
                 // Brain Dump Tab (Center - hidden tab item)
                 BrainDumpView(viewModel: container.makeBrainDumpViewModel())
                     .tabItem {
-                        // Empty/invisible tab item for Brain Dump
-                        Image(systemName: "")
-                            .hidden()
-                        Text("")
-                            .hidden()
+                        Image(systemName: "").hidden()
+                        Text("").hidden()
                     }
                     .tag(AppTab.brainDump)
                 
                 // Library Tab
                 EntryListView(viewModel: container.makeEntryListViewModel())
                     .tabItem {
-                        TabItemView(
-                            tab: .library,
-                            isSelected: selectedTab == .library
-                        )
+                        TabItemView(tab: .library, isSelected: selectedTab == .library)
                     }
                     .tag(AppTab.library)
                 
                 // Stats Tab
                 StatsView()
                     .tabItem {
-                        TabItemView(
-                            tab: .stats,
-                            isSelected: selectedTab == .stats
-                        )
+                        TabItemView(tab: .stats, isSelected: selectedTab == .stats)
                     }
                     .tag(AppTab.stats)
             }
             .accentColor(AppColors.coral)
             
-            // Floating center button overlay - positioned in middle tab slot
+            // Floating center button overlay - always visible, aligned with tab bar
             VStack {
                 Spacer()
-                
                 HStack(spacing: 0) {
-                    // Space for first tab (Today)
                     Spacer()
-                    
-                    // Space for second tab (Inspire)
                     Spacer()
-                    
-                    // Center button in middle tab position
                     CircularCTA(
                         icon: "plus",
                         size: .large,
                         action: {
-                            withAnimation(.easeInOut(duration: 0.3)) {
-                                showBrainDumpTransition = true
-                            }
-                            
+                            withAnimation(.easeInOut(duration: 0.3)) { showBrainDumpTransition = true }
                             DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
                                 selectedTab = .brainDump
                                 showBrainDumpTransition = false
@@ -153,15 +114,10 @@ struct RootView: View {
                     )
                     .scaleEffect(showBrainDumpTransition ? 1.1 : 1.0)
                     .opacity(showBrainDumpTransition ? 0.8 : 1.0)
-                    
-                    // Space for fourth tab (Library)
                     Spacer()
-                    
-                    // Space for fifth tab (Stats)
                     Spacer()
                 }
-                .padding(.bottom, 20) // Position to align with tab icons
-                .padding(.horizontal, 0) // Let spacers handle distribution
+                .padding(.bottom, 12) // in-line with tab bar icons
             }
         }
     }
@@ -177,7 +133,6 @@ struct TabItemView: View {
         VStack(spacing: 4) {
             Image(systemName: tab.systemImage)
                 .font(.system(size: 20, weight: .medium))
-            
             Text(tab.title)
                 .font(.caption2)
         }
@@ -186,56 +141,13 @@ struct TabItemView: View {
     }
 }
 
-// MARK: - Tab Content Views
-
-struct TodayView: View {
-    var body: some View {
-        ZStack {
-            GradientBackground.sunrise
-            
-            VStack(spacing: AppSpacing.l) {
-                VStack(spacing: AppSpacing.s) {
-                    Text("Good Morning!")
-                        .titleXL(weight: .bold)
-                        .foregroundColor(.white)
-                    
-                    Text("Ready to start your day?")
-                        .body()
-                        .foregroundColor(.white.opacity(0.9))
-                }
-                
-                Spacer()
-                
-                // Today's stats placeholder
-                VStack(spacing: AppSpacing.m) {
-                    HStack(spacing: AppSpacing.m) {
-                        StatCard(title: "Streak", value: "5", subtitle: "days")
-                        StatCard(title: "Entries", value: "12", subtitle: "this week")
-                    }
-                }
-                .padding(.bottom, AppSpacing.xl)
-            }
-            .padding(AppSpacing.m)
-        }
-        .appTheme()
-    }
-}
-
-
-
-// InspireView is now defined in Features/Inspire/InspireView.swift
+// MARK: - Stats & Helpers remain
 
 struct StatsView: View {
     var body: some View {
         VStack(spacing: AppSpacing.l) {
-            Text("Statistics")
-                .titleL(weight: .semibold)
-                .foregroundColor(AppColors.inkPrimary)
-            
-            Text("Insights and analytics")
-                .body()
-                .foregroundColor(AppColors.inkSecondary)
-            
+            Text("Statistics").titleL(weight: .semibold).foregroundColor(AppColors.inkPrimary)
+            Text("Insights and analytics").body().foregroundColor(AppColors.inkSecondary)
             Spacer()
         }
         .padding(AppSpacing.m)
@@ -244,8 +156,6 @@ struct StatsView: View {
     }
 }
 
-// MARK: - Supporting Components
-
 struct StatCard: View {
     let title: String
     let value: String
@@ -253,17 +163,9 @@ struct StatCard: View {
     
     var body: some View {
         VStack(spacing: AppSpacing.xs) {
-            Text(value)
-                .titleL(weight: .bold)
-                .foregroundColor(AppColors.inkPrimary)
-            
-            Text(title)
-                .body(weight: .medium)
-                .foregroundColor(AppColors.inkPrimary)
-            
-            Text(subtitle)
-                .caption()
-                .foregroundColor(AppColors.inkSecondary)
+            Text(value).titleL(weight: .bold).foregroundColor(AppColors.inkPrimary)
+            Text(title).body(weight: .medium).foregroundColor(AppColors.inkPrimary)
+            Text(subtitle).caption().foregroundColor(AppColors.inkSecondary)
         }
         .frame(maxWidth: .infinity)
         .padding(AppSpacing.m)
@@ -273,19 +175,5 @@ struct StatCard: View {
     }
 }
 
-// PromptCard removed - InspireView now uses InspirationCard
-
-// MARK: - Preview
-
-#Preview("Root View - Light") {
-    RootView()
-}
-
-#Preview("Root View - Dark") {
-    RootView()
-        .preferredColorScheme(.dark)
-}
-
-#Preview("Today View Only") {
-    TodayView()
-}
+#Preview("Root View - Light") { RootView() }
+#Preview("Root View - Dark") { RootView().preferredColorScheme(.dark) }

@@ -137,8 +137,12 @@ struct BrainDumpView: View {
             .background(AppColors.canvas)
             .navigationBarHidden(true)
         }
-        .alert("Error", isPresented: .constant(
-            if case .error = viewModel.state { true } else { false }
+        .alert("Error", isPresented: Binding<Bool>(
+            get: {
+                if case .error = viewModel.state { return true }
+                return false
+            },
+            set: { _ in }
         )) {
             Button("OK") {
                 viewModel.dismissError()

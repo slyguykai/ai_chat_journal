@@ -8,7 +8,6 @@
 import Foundation
 
 /// Mock implementation of EntryStore with sample data
-@MainActor
 class MockEntryStore: EntryStore {
     @Published var entries: [JournalEntry] = []
     
@@ -17,17 +16,23 @@ class MockEntryStore: EntryStore {
     }
     
     func addEntry(_ entry: JournalEntry) async throws {
-        entries.insert(entry, at: 0)
+        await MainActor.run {
+            entries.insert(entry, at: 0)
+        }
     }
     
     func updateEntry(_ entry: JournalEntry) async throws {
-        if let index = entries.firstIndex(where: { $0.id == entry.id }) {
-            entries[index] = entry
+        await MainActor.run {
+            if let index = entries.firstIndex(where: { $0.id == entry.id }) {
+                entries[index] = entry
+            }
         }
     }
     
     func deleteEntry(id: UUID) async throws {
-        entries.removeAll { $0.id == id }
+        await MainActor.run {
+            entries.removeAll { $0.id == id }
+        }
     }
     
     func fetchEntries() async throws {

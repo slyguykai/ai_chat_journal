@@ -54,40 +54,47 @@ struct RootView: View {
                         .tag(TabItem.stats)
                 }
                 .accentColor(AppColors.coral)
-                
-                // Floating center button overlay - always visible, aligned with tab bar
-                VStack {
-                    Spacer()
-                    HStack(spacing: 0) {
-                        Spacer()
-                        Spacer()
-                        CircularCTA(
-                            icon: "plus",
-                            size: .large,
-                            action: {
-                                withAnimation(.easeInOut(duration: 0.3)) { showBrainDumpTransition = true }
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
-                                    selectedTab = .brainDump
-                                    showBrainDumpTransition = false
-                                }
-                            },
-                            accessibilityLabel: TabItem.brainDump.accessibilityLabel,
-                            accessibilityHint: TabItem.brainDump.accessibilityHint
-                        )
-                        .accessibilityLabel(TabItem.brainDump.accessibilityLabel)
-                        .accessibilityHint(TabItem.brainDump.accessibilityHint)
-                        .scaleEffect(showBrainDumpTransition ? 1.1 : 1.0)
-                        .opacity(showBrainDumpTransition ? 0.8 : 1.0)
-                        .frame(minWidth: 44, minHeight: 44)
-                        Spacer()
-                        Spacer()
-                    }
-                    .padding(.bottom, 12) // in-line with tab bar icons
-                }
+            }
+            // Background glass under the tab area
+            .safeAreaInset(edge: .bottom) {
+                TabBarBackgroundView(selectedIndex: tabIndex(for: selectedTab))
+                    .frame(height: 92)
+            }
+            // Floating CTA overlay above the glass
+            .safeAreaInset(edge: .bottom) {
+                HStack { Spacer()
+                    CircularCTA(
+                        icon: "plus",
+                        size: .large,
+                        action: {
+                            Haptics.light()
+                            withAnimation(.easeInOut(duration: 0.2)) { showBrainDumpTransition = true }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                                selectedTab = .brainDump
+                                showBrainDumpTransition = false
+                            }
+                        },
+                        accessibilityLabel: TabItem.brainDump.accessibilityLabel,
+                        accessibilityHint: TabItem.brainDump.accessibilityHint
+                    )
+                    .scaleEffect(showBrainDumpTransition ? 1.05 : 1.0)
+                    .opacity(showBrainDumpTransition ? 0.9 : 1.0)
+                    Spacer() }
+                .padding(.bottom, 4)
             }
         }
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(.visible, for: .navigationBar)
+    }
+    
+    private func tabIndex(for item: TabItem) -> Int {
+        switch item {
+        case .today: return 0
+        case .inspire: return 1
+        case .brainDump: return 2
+        case .library: return 3
+        case .stats: return 4
+        }
     }
 }
 

@@ -47,12 +47,11 @@ struct CircularCTA: View {
     @State private var isPressed = false
     
     var body: some View {
-        Button(action: {
-            Haptics.medium()
-            action()
-        }) {
+        let side = max(64, size.dimension)
+        
+        Button(action: { action() }) {
             ZStack {
-                // Background gradient with shadow
+                // Background gradient with premium shadow
                 Circle()
                     .fill(
                         LinearGradient(
@@ -61,19 +60,15 @@ struct CircularCTA: View {
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: size.dimension, height: size.dimension)
-                    .shadow(
-                        color: AppColors.coral.opacity(0.3),
-                        radius: 8,
-                        x: 0,
-                        y: 4
-                    )
+                    .frame(width: side, height: side)
+                    .shadow(color: Color.black.opacity(0.12), radius: 20, x: 0, y: 8)
                 
                 // Icon
                 Image(systemName: icon)
                     .font(.system(size: size.iconSize, weight: .semibold))
                     .foregroundColor(.white)
             }
+            .contentShape(Circle())
             .scaleEffect(isPressed ? 0.95 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: isPressed)
         }
@@ -84,7 +79,8 @@ struct CircularCTA: View {
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(accessibilityHint)
         .accessibilityAddTraits(.isButton)
-        .frame(width: max(44, size.dimension), height: max(44, size.dimension)) // Ensure 44pt minimum hit target
+        .frame(width: side, height: side)
+        .zIndex(2)
     }
 }
 

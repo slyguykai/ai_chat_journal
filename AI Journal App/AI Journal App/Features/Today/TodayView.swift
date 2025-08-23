@@ -8,15 +8,28 @@
 import SwiftUI
 
 struct TodayView: View {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    
     var body: some View {
         ZStack {
             GradientBackground.peachCream
-            VStack(spacing: AppSpacing.l) {
-                header
+            ScrollView {
+                GeometryReader { proxy in
+                    let y = proxy.frame(in: .global).minY
+                    header
+                        .padding(.top, max(0, -y))
+                        .scaleEffect(reduceMotion ? 1.0 : scale(for: y))
+                        .offset(y: reduceMotion ? 0 : offset(for: y))
+                }
+                .frame(height: 88)
+                
                 promptCard
-                Spacer()
+                    .padding(.top, AppSpacing.m)
+                
+                Spacer(minLength: AppSpacing.l)
             }
-            .padding(AppSpacing.m)
+            .scrollIndicators(.hidden)
+            .padding(.horizontal, AppSpacing.m)
         }
         .appTheme()
     }
@@ -48,10 +61,10 @@ struct TodayView: View {
                 .titleM(weight: .medium)
                 .foregroundColor(AppColors.inkPrimary)
             HStack(spacing: AppSpacing.m) {
-                Button("Reflect") {}
+                Button("Reflect") { Haptics.light() }
                     .buttonStyle(PrimaryButtonStyle())
                     .accessibilityLabel("Reflect on this prompt")
-                Button("Try later") {}
+                Button("Try later") { Haptics.light() }
                     .buttonStyle(SecondaryButtonStyle())
                     .accessibilityLabel("Save prompt for later")
             }
@@ -76,6 +89,16 @@ struct TodayView: View {
         case 12..<17: return "Good Afternoon"
         default: return "Good Evening"
         }
+    }
+    
+    private func scale(for y: CGFloat) -> CGFloat {
+        if y > 0 { return 1.0 + min(y / 300.0, 0.06) }
+        return 1.0
+    }
+    
+    private func offset(for y: CGFloat) -> CGFloat {
+        if y > 0 { return -min(y / 2.5, 20) }
+        return 0
     }
 }
 

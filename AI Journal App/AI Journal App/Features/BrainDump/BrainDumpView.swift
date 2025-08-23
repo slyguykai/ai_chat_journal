@@ -11,8 +11,9 @@ import SwiftUI
 struct BrainDumpView: View {
     @StateObject private var viewModel: BrainDumpViewModel
     @FocusState private var isTextEditorFocused: Bool
-    @State private var showContent = false
+    @State private var showHeroCard = false
     @State private var selectedMood: MoodType? = nil
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     
     init(viewModel: BrainDumpViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -54,7 +55,7 @@ struct BrainDumpView: View {
                         }
                     }
                     
-                    // Text editor card with higher contrast
+                    // Text editor card with higher contrast (hero card)
                     ZStack(alignment: .topLeading) {
                         TextEditor(text: Binding(
                             get: { viewModel.state.currentText },
@@ -89,22 +90,34 @@ struct BrainDumpView: View {
                             )
                             .shadow(color: .black.opacity(0.15), radius: 12, x: 0, y: 6)
                     )
+                    .scaleEffect(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.85))
+                    .opacity(reduceMotion ? 1.0 : (showHeroCard ? 1.0 : 0.0))
                     
-                    Button("Save") { viewModel.save() }
-                        .buttonStyle(PrimaryButtonStyle())
-                        .disabled(!viewModel.canSave)
-                        .accessibilityLabel("Save brain dump entry")
+                    Button("Save") {
+                        Haptics.light()
+                        viewModel.save()
+                    }
+                    .buttonStyle(PrimaryButtonStyle())
+                    .disabled(!viewModel.canSave)
+                    .accessibilityLabel("Save brain dump entry")
                 }
                 .padding(.horizontal, AppSpacing.m)
                 .padding(.bottom, AppSpacing.l)
             }
             .navigationBarHidden(true)
-            .scaleEffect(showContent ? 1.0 : 0.95)
-            .opacity(showContent ? 1.0 : 0.0)
-            .animation(.easeInOut(duration: 0.4), value: showContent)
-            .onAppear { withAnimation(.easeInOut(duration: 0.4).delay(0.1)) { showContent = true } }
-            .onDisappear { showContent = false }
-            .onChange(of: viewModel.state) { newState in if case .saved = newState { Haptics.light() } }
+            .onAppear {
+                if reduceMotion {
+                    showHeroCard = true
+                } else {
+                    withAnimation(.spring(response: 0.45, dampingFraction: 0.9, blendDuration: 0.1)) {
+                        showHeroCard = true
+                    }
+                }
+            }
+            .onDisappear { showHeroCard = false }
+            .onChange(of: viewModel.state) { newState in
+                if case .saved = newState { Haptics.success() }
+            }
         }
         .alert("Error", isPresented: Binding<Bool>(
             get: { if case .error = viewModel.state { return true }; return false },

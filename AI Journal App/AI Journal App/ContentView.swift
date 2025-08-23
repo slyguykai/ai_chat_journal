@@ -9,16 +9,15 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        RootView()
     }
 }
 
-#Preview {
+#Preview("App Shell - Light") {
     ContentView()
+}
+
+#Preview("App Shell - Dark") {
+    ContentView()
+        .preferredColorScheme(.dark)
 }

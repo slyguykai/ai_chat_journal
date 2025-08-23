@@ -48,7 +48,7 @@ class SwiftDataEntryStore: EntryStore {
         
         await MainActor.run {
             existingEntry.text = entry.text
-            existingEntry.mood = entry.mood?.moodScore.map { Double($0) }
+            existingEntry.mood = entry.mood.map { Double($0.moodScore) }
             existingEntry.summary = entry.summary
         }
         

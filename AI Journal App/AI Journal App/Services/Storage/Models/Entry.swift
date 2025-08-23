@@ -56,7 +56,7 @@ extension Entry {
 extension JournalEntry {
     /// Convert JournalEntry to SwiftData Entry
     func toSwiftDataEntry() -> Entry {
-        let moodValue: Double? = mood?.moodScore.map { Double($0) }
+        let moodValue: Double? = mood.map { Double($0.moodScore) }
         
         return Entry(
             id: id,

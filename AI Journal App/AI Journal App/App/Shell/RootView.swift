@@ -80,7 +80,7 @@ struct RootView: View {
                 .tag(AppTab.today)
             
             // Brain Dump Tab  
-            BrainDumpView()
+            BrainDumpView(viewModel: container.makeBrainDumpViewModel())
                 .tabItem {
                     TabItemView(
                         tab: .brainDump,
@@ -205,24 +205,7 @@ struct TodayView: View {
     }
 }
 
-struct BrainDumpView: View {
-    var body: some View {
-        VStack(spacing: AppSpacing.l) {
-            Text("Brain Dump")
-                .titleL(weight: .semibold)
-                .foregroundColor(AppColors.inkPrimary)
-            
-            Text("Free-form thoughts and ideas")
-                .body()
-                .foregroundColor(AppColors.inkSecondary)
-            
-            Spacer()
-        }
-        .padding(AppSpacing.m)
-        .background(AppColors.canvas)
-        .appTheme()
-    }
-}
+
 
 struct LibraryView: View {
     var body: some View {

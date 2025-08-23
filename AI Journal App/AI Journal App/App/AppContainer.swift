@@ -25,4 +25,8 @@ class AppContainer: ObservableObject {
     func makeEntryListViewModel() -> EntryListViewModel {
         EntryListViewModel(entryStore: entryStore)
     }
+    
+    func makeBrainDumpViewModel() -> BrainDumpViewModel {
+        BrainDumpViewModel(entryStore: entryStore)
+    }
 }

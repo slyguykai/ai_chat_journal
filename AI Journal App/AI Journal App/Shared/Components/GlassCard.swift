@@ -21,19 +21,22 @@ struct GlassCard<Content: View>: View {
             .padding(AppSpacing.m)
             .background(
                 ZStack {
-                    // Material backdrop with stronger blur
+                    // Material base with blur
                     RoundedRectangle(cornerRadius: cornerRadius)
                         .fill(.ultraThinMaterial)
                         .blur(radius: 20)
-                    // White translucent wash
+                    // Subtle inner highlight for premium sheen
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(Color.white.opacity(0.12))
-                    // Subtle stroke
+                        .fill(Color.white.opacity(0.10))
+                        .blendMode(.screen)
+                    // Crisp stroke for definition
                     RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
                 }
                 .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
+                // Dual shadow: soft ambient + contact for depth
+                .shadow(color: Color.black.opacity(0.10), radius: 20, x: 0, y: 12)
+                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
             )
     }
 }

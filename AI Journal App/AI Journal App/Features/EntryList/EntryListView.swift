@@ -2,59 +2,51 @@
 //  EntryListView.swift
 //  AI Journal App
 //
-//  Journal entry list with glass-style cards
+//  Displays a vertical list of entries using glass cards
 //
 
 import SwiftUI
 
-/// Journal entry list view
 struct EntryListView: View {
-    @StateObject private var viewModel: EntryListViewModel
-    
-    init(viewModel: EntryListViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
-    }
+    let entries: [JournalEntry]
     
     var body: some View {
-        NavigationView {
-            ZStack {
-                AppColors.canvas.ignoresSafeArea()
-                
-                ScrollView {
-                    LazyVStack(spacing: AppSpacing.m) {
-                        if viewModel.entries.isEmpty && !viewModel.isLoading {
-                            EmptyStateView()
-                        } else {
-                            ForEach(viewModel.entries) { entry in
-                                EntryCard(entry: entry) {
-                                    viewModel.deleteEntry(entry)
-                                }
-                            }
+        VStack(spacing: AppSpacing.m) {
+            ForEach(entries) { entry in
+                GlassCard(cornerRadius: AppRadii.large) {
+                    HStack(alignment: .top, spacing: AppSpacing.m) {
+                        Image(system: .faceSmiling)
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundColor(AppColors.inkSecondary)
+                            .padding(.top, 2)
+                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                            Text(title(for: entry))
+                                .titleM(weight: .semibold)
+                                .foregroundColor(AppColors.inkPrimary)
+                            Text(entry.text)
+                                .body()
+                                .foregroundColor(AppColors.inkSecondary)
+                                .lineLimit(2)
                         }
+                        Spacer()
+                        Text(relativeDate(entry.timestamp))
+                            .caption()
+                            .foregroundColor(AppColors.inkSecondary)
                     }
-                    .padding(AppSpacing.m)
-                }
-                .refreshable {
-                    viewModel.loadEntries()
-                }
-                
-                if viewModel.isLoading {
-                    ProgressView("Loading entries...")
-                        .padding()
-                        .background(AppColors.surface)
-                        .cornerRadius(AppRadii.medium)
                 }
             }
-            .navigationTitle("Journal Entries")
-            .navigationBarTitleDisplayMode(.large)
         }
-        .alert("Error", isPresented: .constant(viewModel.errorMessage != nil)) {
-            Button("OK") {
-                viewModel.errorMessage = nil
-            }
-        } message: {
-            Text(viewModel.errorMessage ?? "")
-        }
+    }
+    
+    private func title(for entry: JournalEntry) -> String {
+        if let summary = entry.summary, !summary.isEmpty { return summary }
+        return String(entry.text.trimmingCharacters(in: .whitespacesAndNewlines).prefix(40))
+    }
+    
+    private func relativeDate(_ date: Date) -> String {
+        let formatter = RelativeDateTimeFormatter()
+        formatter.unitsStyle = .short
+        return formatter.localizedString(for: date, relativeTo: Date())
     }
 }
 
@@ -162,30 +154,16 @@ struct EmptyStateView: View {
 // MARK: - Preview
 
 #Preview("Entry List - Light") {
-    EntryListView(
-        viewModel: EntryListViewModel(entryStore: MockEntryStore())
-    )
+    let store = MockEntryStore()
+    return EntryListView(entries: store.entries)
 }
 
 #Preview("Entry List - Dark") {
-    EntryListView(
-        viewModel: EntryListViewModel(entryStore: MockEntryStore())
-    )
-    .preferredColorScheme(.dark)
+    let store = MockEntryStore()
+    return EntryListView(entries: store.entries)
+        .preferredColorScheme(.dark)
 }
 
 #Preview("Empty State") {
-    struct EmptyPreview: View {
-        var body: some View {
-            EntryListView(
-                viewModel: {
-                    let store = MockEntryStore()
-                    store.entries = []
-                    return EntryListViewModel(entryStore: store)
-                }()
-            )
-        }
-    }
-    
-    return EmptyPreview()
+    EntryListView(entries: [])
 }

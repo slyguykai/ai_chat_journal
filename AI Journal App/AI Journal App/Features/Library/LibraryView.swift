@@ -177,11 +177,11 @@ private struct EntryRow: View {
         GlassCard(cornerRadius: AppRadii.large) {
             HStack(alignment: .top, spacing: AppSpacing.m) {
                 Image(system: .faceSmiling)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: 18, weight: .semibold))
                     .foregroundColor(AppColors.inkSecondary)
                     .padding(.top, 2)
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                    HStack {
+                    HStack(alignment: .firstTextBaseline) {
                         Text(title)
                             .titleM(weight: .semibold)
                             .foregroundColor(AppColors.inkPrimary)
@@ -192,12 +192,11 @@ private struct EntryRow: View {
                     }
                     Text(entry.text)
                         .body()
-                        .lineLimit(2)
                         .foregroundColor(AppColors.inkSecondary)
+                        .lineLimit(2)
                 }
             }
         }
-        .frame(minHeight: 44)
         .accessibilityLabel("\(title), \(time)")
     }
     

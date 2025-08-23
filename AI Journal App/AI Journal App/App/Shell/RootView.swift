@@ -54,6 +54,7 @@ struct RootView: View {
                         .tag(TabItem.stats)
                 }
                 .accentColor(AppColors.coral)
+                .animation(.easeInOut(duration: 0.2), value: selectedTab)
                 // Place premium glass behind content & tabs
                 .background(alignment: .bottom) {
                     TabBarBackgroundView(selectedIndex: tabIndex(for: selectedTab))
@@ -68,8 +69,10 @@ struct RootView: View {
                         Haptics.light()
                         withAnimation(.easeInOut(duration: 0.2)) { showBrainDumpTransition = true }
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            selectedTab = .brainDump
-                            showBrainDumpTransition = false
+                            withAnimation(.spring(response: 0.32, dampingFraction: 0.9)) {
+                                selectedTab = .brainDump
+                                showBrainDumpTransition = false
+                            }
                         }
                     },
                     accessibilityLabel: TabItem.brainDump.accessibilityLabel,

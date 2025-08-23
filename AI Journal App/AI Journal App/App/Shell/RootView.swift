@@ -65,6 +65,7 @@ enum AppTab: String, CaseIterable {
 struct RootView: View {
     @StateObject private var container = AppContainer()
     @State private var selectedTab: AppTab = .today
+    @State private var showBrainDumpTransition = false
     
     var body: some View {
         ZStack {
@@ -89,13 +90,14 @@ struct RootView: View {
                     }
                     .tag(AppTab.inspire)
                 
-                // Brain Dump Tab (Center - hidden in TabView)
+                // Brain Dump Tab (Center - hidden tab item)
                 BrainDumpView(viewModel: container.makeBrainDumpViewModel())
                     .tabItem {
-                        TabItemView(
-                            tab: .brainDump,
-                            isSelected: selectedTab == .brainDump
-                        )
+                        // Empty/invisible tab item for Brain Dump
+                        Image(systemName: "")
+                            .hidden()
+                        Text("")
+                            .hidden()
                     }
                     .tag(AppTab.brainDump)
                 
@@ -133,11 +135,20 @@ struct RootView: View {
                         icon: "plus",
                         size: .large,
                         action: {
-                            selectedTab = .brainDump
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showBrainDumpTransition = true
+                            }
+                            
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                                selectedTab = .brainDump
+                                showBrainDumpTransition = false
+                            }
                         },
                         accessibilityLabel: "Brain Dump",
                         accessibilityHint: "Open brain dump to quickly capture your thoughts"
                     )
+                    .scaleEffect(showBrainDumpTransition ? 1.1 : 1.0)
+                    .opacity(showBrainDumpTransition ? 0.8 : 1.0)
                     
                     Spacer()
                     Spacer()

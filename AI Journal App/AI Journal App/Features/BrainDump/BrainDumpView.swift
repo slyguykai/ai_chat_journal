@@ -11,6 +11,7 @@ import SwiftUI
 struct BrainDumpView: View {
     @StateObject private var viewModel: BrainDumpViewModel
     @FocusState private var isTextEditorFocused: Bool
+    @State private var showContent = false
     
     init(viewModel: BrainDumpViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -136,6 +137,17 @@ struct BrainDumpView: View {
             .padding(AppSpacing.m)
             .background(AppColors.canvas)
             .navigationBarHidden(true)
+            .scaleEffect(showContent ? 1.0 : 0.95)
+            .opacity(showContent ? 1.0 : 0.0)
+            .animation(.easeInOut(duration: 0.4), value: showContent)
+            .onAppear {
+                withAnimation(.easeInOut(duration: 0.4).delay(0.1)) {
+                    showContent = true
+                }
+            }
+            .onDisappear {
+                showContent = false
+            }
         }
         .alert("Error", isPresented: Binding<Bool>(
             get: {

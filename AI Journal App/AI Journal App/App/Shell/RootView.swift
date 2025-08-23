@@ -85,7 +85,7 @@ struct RootView: View {
                     .tag(AppTab.library)
                 
                 // Stats Tab
-                StatsView()
+                StatsView(viewModel: StatsViewModel())
                     .tabItem {
                         TabItemView(tab: .stats, isSelected: selectedTab == .stats)
                     }
@@ -138,40 +138,6 @@ struct TabItemView: View {
         }
         .accessibilityLabel(tab.accessibilityLabel)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-}
-
-// MARK: - Stats & Helpers remain
-
-struct StatsView: View {
-    var body: some View {
-        VStack(spacing: AppSpacing.l) {
-            Text("Statistics").titleL(weight: .semibold).foregroundColor(AppColors.inkPrimary)
-            Text("Insights and analytics").body().foregroundColor(AppColors.inkSecondary)
-            Spacer()
-        }
-        .padding(AppSpacing.m)
-        .background(AppColors.canvas)
-        .appTheme()
-    }
-}
-
-struct StatCard: View {
-    let title: String
-    let value: String
-    let subtitle: String
-    
-    var body: some View {
-        VStack(spacing: AppSpacing.xs) {
-            Text(value).titleL(weight: .bold).foregroundColor(AppColors.inkPrimary)
-            Text(title).body(weight: .medium).foregroundColor(AppColors.inkPrimary)
-            Text(subtitle).caption().foregroundColor(AppColors.inkSecondary)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(AppSpacing.m)
-        .background(AppColors.surface.opacity(0.9))
-        .cornerRadius(AppRadii.medium)
-        .shadow(color: .black.opacity(0.1), radius: 4, x: 0, y: 2)
     }
 }
 

@@ -38,6 +38,7 @@ struct LibraryView: View {
                     VStack(spacing: AppSpacing.m) {
                         ForEach(viewModel.filtered) { entry in
                             EntryRow(entry: entry)
+                                .cardPress()
                                 .accessibilityElement(children: .combine)
                                 .accessibilityLabel("\(relativeDate(entry.timestamp)), \(entryTitle(entry))")
                         }
@@ -54,12 +55,12 @@ struct LibraryView: View {
     
     private var topBar: some View {
         HStack {
-            Image(systemName: "chevron.left")
+            Image(system: .chevronLeft)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(AppColors.inkPrimary.opacity(0.6))
             Spacer()
             HStack(spacing: AppSpacing.s) {
-                Image(systemName: "book")
+                Image(system: .book)
                     .font(.system(size: 16, weight: .semibold))
                 Text("My Library").body(weight: .semibold)
             }
@@ -75,7 +76,7 @@ struct LibraryView: View {
             )
             .accessibilityLabel("My Library")
             Spacer()
-            Image(systemName: "ellipsis")
+            Image(system: .ellipsis)
                 .font(.system(size: 18, weight: .semibold))
                 .foregroundColor(AppColors.inkPrimary.opacity(0.6))
         }
@@ -92,7 +93,7 @@ struct LibraryView: View {
     
     private var searchField: some View {
         HStack(spacing: AppSpacing.s) {
-            Image(systemName: "magnifyingglass").foregroundColor(AppColors.inkSecondary)
+            Image(system: .magnifyingglass).foregroundColor(AppColors.inkSecondary)
             TextField("Search entries", text: $viewModel.searchText)
                 .textFieldStyle(PlainTextFieldStyle())
                 .foregroundColor(AppColors.inkPrimary)
@@ -132,7 +133,9 @@ struct LibraryView: View {
     
     private var emptyState: some View {
         VStack(alignment: .center, spacing: AppSpacing.s) {
-            Image(systemName: "book").font(.system(size: 40, weight: .semibold)).foregroundColor(AppColors.inkSecondary)
+            Image(system: .book)
+                .font(.system(size: 40, weight: .semibold))
+                .foregroundColor(AppColors.inkSecondary)
             Text("No entries yet").titleM(weight: .semibold).foregroundColor(AppColors.inkPrimary)
             Text("Start your first reflection from the Brain Dump tab.")
                 .body()
@@ -172,7 +175,7 @@ private struct EntryRow: View {
     var body: some View {
         GlassCard(cornerRadius: AppRadii.large) {
             HStack(alignment: .top, spacing: AppSpacing.m) {
-                Image(systemName: "face.smiling")
+                Image(system: .faceSmiling)
                     .font(.system(size: 20, weight: .semibold))
                     .foregroundColor(AppColors.inkSecondary)
                     .padding(.top, 2)

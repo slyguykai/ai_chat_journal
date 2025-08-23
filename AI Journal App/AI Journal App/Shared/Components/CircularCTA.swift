@@ -2,207 +2,54 @@
 //  CircularCTA.swift
 //  AI Journal App
 //
-//  Reusable circular call-to-action button with gradient and shadow
+//  Reusable circular call-to-action button
 //
 
 import SwiftUI
 
-/// Size variants for circular CTA buttons
-enum CircularCTASize {
-    case medium     // 48pt
-    case large      // 64pt
-    case extraLarge // 80pt
-    
-    var dimension: CGFloat {
-        switch self {
-        case .medium:
-            return 48
-        case .large:
-            return 64
-        case .extraLarge:
-            return 80
-        }
-    }
-    
-    var iconSize: CGFloat {
-        switch self {
-        case .medium:
-            return 20
-        case .large:
-            return 24
-        case .extraLarge:
-            return 28
-        }
-    }
-}
-
-/// Reusable circular call-to-action button
 struct CircularCTA: View {
-    let icon: String
-    let size: CircularCTASize
-    let action: () -> Void
-    var accessibilityLabel: String = ""
-    var accessibilityHint: String = ""
+    enum Size { case small, medium, large }
     
-    @State private var isPressed = false
+    let icon: String
+    let size: Size
+    let action: () -> Void
+    let accessibilityLabel: String
+    let accessibilityHint: String
+    
+    private var dimension: CGFloat {
+        switch size {
+        case .small: return 56
+        case .medium: return 64
+        case .large: return max(64, AppRadii.large * 2.0)
+        }
+    }
     
     var body: some View {
-        let side = max(64, size.dimension)
-        
-        Button(action: { action() }) {
+        Button(action: action) {
             ZStack {
-                // Background gradient with premium shadow
                 Circle()
                     .fill(
                         LinearGradient(
-                            gradient: Gradient(colors: [AppColors.peach, AppColors.coral]),
+                            colors: [AppColors.peach, AppColors.coral],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: side, height: side)
-                    .shadow(color: Color.black.opacity(0.12), radius: 20, x: 0, y: 8)
-                
-                // Icon
-                Image(systemName: icon)
-                    .font(.system(size: size.iconSize, weight: .semibold))
+                Image(system: .plusCircleFill)
+                    .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
             }
-            .contentShape(Circle())
-            .scaleEffect(isPressed ? 0.95 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: isPressed)
         }
-        .buttonStyle(PlainButtonStyle())
-        .onLongPressGesture(minimumDuration: 0, maximumDistance: .infinity, pressing: { pressing in
-            isPressed = pressing
-        }, perform: {})
+        .frame(width: dimension, height: dimension)
+        .contentShape(Circle())
+        .zIndex(2)
+        .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: 8)
         .accessibilityLabel(accessibilityLabel)
         .accessibilityHint(accessibilityHint)
-        .accessibilityAddTraits(.isButton)
-        .frame(width: side, height: side)
-        .zIndex(2)
+        .frame(minWidth: 64, minHeight: 64)
     }
 }
 
-// MARK: - Preview
-
-#Preview("Circular CTA Sizes - Light") {
-    VStack(spacing: AppSpacing.l) {
-        Text("Circular CTA Buttons")
-            .titleL(weight: .bold)
-            .foregroundColor(AppColors.inkPrimary)
-        
-        VStack(spacing: AppSpacing.m) {
-            HStack(spacing: AppSpacing.m) {
-                Text("Medium (48pt)")
-                    .body()
-                    .foregroundColor(AppColors.inkSecondary)
-                Spacer()
-                CircularCTA(
-                    icon: "plus",
-                    size: .medium,
-                    action: {},
-                    accessibilityLabel: "Add entry",
-                    accessibilityHint: "Opens the brain dump editor"
-                )
-            }
-            
-            HStack(spacing: AppSpacing.m) {
-                Text("Large (64pt)")
-                    .body()
-                    .foregroundColor(AppColors.inkSecondary)
-                Spacer()
-                CircularCTA(
-                    icon: "plus.circle.fill",
-                    size: .large,
-                    action: {},
-                    accessibilityLabel: "Add entry",
-                    accessibilityHint: "Opens the brain dump editor"
-                )
-            }
-            
-            HStack(spacing: AppSpacing.m) {
-                Text("Extra Large (80pt)")
-                    .body()
-                    .foregroundColor(AppColors.inkSecondary)
-                Spacer()
-                CircularCTA(
-                    icon: "sparkles",
-                    size: .extraLarge,
-                    action: {},
-                    accessibilityLabel: "Inspire me",
-                    accessibilityHint: "Opens inspiration prompts"
-                )
-            }
-        }
-        
-        Spacer()
-        
-        Text("Tap to test haptic feedback")
-            .caption()
-            .foregroundColor(AppColors.inkSecondary)
-    }
-    .padding(AppSpacing.m)
-    .background(AppColors.canvas)
-}
-
-#Preview("Circular CTA Sizes - Dark") {
-    VStack(spacing: AppSpacing.l) {
-        Text("Circular CTA Buttons")
-            .titleL(weight: .bold)
-            .foregroundColor(.white)
-        
-        VStack(spacing: AppSpacing.m) {
-            HStack(spacing: AppSpacing.m) {
-                Text("Medium (48pt)")
-                    .body()
-                    .foregroundColor(.white.opacity(0.7))
-                Spacer()
-                CircularCTA(
-                    icon: "plus",
-                    size: .medium,
-                    action: {},
-                    accessibilityLabel: "Add entry",
-                    accessibilityHint: "Opens the brain dump editor"
-                )
-            }
-            
-            HStack(spacing: AppSpacing.m) {
-                Text("Large (64pt)")
-                    .body()
-                    .foregroundColor(.white.opacity(0.7))
-                Spacer()
-                CircularCTA(
-                    icon: "plus.circle.fill",
-                    size: .large,
-                    action: {},
-                    accessibilityLabel: "Add entry",
-                    accessibilityHint: "Opens the brain dump editor"
-                )
-            }
-            
-            HStack(spacing: AppSpacing.m) {
-                Text("Extra Large (80pt)")
-                    .body()
-                    .foregroundColor(.white.opacity(0.7))
-                Spacer()
-                CircularCTA(
-                    icon: "sparkles",
-                    size: .extraLarge,
-                    action: {},
-                    accessibilityLabel: "Inspire me",
-                    accessibilityHint: "Opens inspiration prompts"
-                )
-            }
-        }
-        
-        Spacer()
-        
-        Text("Tap to test haptic feedback")
-            .caption()
-            .foregroundColor(.white.opacity(0.7))
-    }
-    .padding(AppSpacing.m)
-    .background(.black)
-    .preferredColorScheme(.dark)
+#Preview("CircularCTA") {
+    CircularCTA(icon: "plus", size: .large, action: {}, accessibilityLabel: "Add", accessibilityHint: "Open Brain Dump")
 }

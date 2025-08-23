@@ -34,7 +34,7 @@ struct RootView: View {
                     // Brain Dump Tab (Center - hidden tab item)
                     BrainDumpView(viewModel: container.makeBrainDumpViewModel())
                         .tabItem {
-                            Image(systemName: "").hidden()
+                            Image(system: .questionmark).hidden()
                             Text("").hidden()
                         }
                         .tag(TabItem.brainDump)
@@ -106,7 +106,7 @@ struct TabItemView: View {
     
     var body: some View {
         VStack(spacing: 4) {
-            Image(systemName: tab.systemImage)
+            Image(system: tab.icon)
                 .font(.system(size: 20, weight: .medium))
                 .frame(minWidth: 44, minHeight: 44)
             Text(tab.title)

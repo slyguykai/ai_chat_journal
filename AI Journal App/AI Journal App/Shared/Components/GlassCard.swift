@@ -11,7 +11,7 @@ struct GlassCard<Content: View>: View {
     let cornerRadius: CGFloat
     let content: () -> Content
     
-    init(cornerRadius: CGFloat = AppRadii.large, @ViewBuilder content: @escaping () -> Content) {
+    init(cornerRadius: CGFloat = AppRadii.medium, @ViewBuilder content: @escaping () -> Content) {
         self.cornerRadius = cornerRadius
         self.content = content
     }
@@ -20,17 +20,20 @@ struct GlassCard<Content: View>: View {
         content()
             .padding(AppSpacing.m)
             .background(
-                RoundedRectangle(cornerRadius: cornerRadius)
-                    .fill(.ultraThinMaterial)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .fill(Color.white.opacity(0.12))
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: cornerRadius)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-                    .shadow(color: .black.opacity(0.08), radius: 12, x: 0, y: 6)
+                ZStack {
+                    // Material backdrop with stronger blur
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(.ultraThinMaterial)
+                        .blur(radius: 20)
+                    // White translucent wash
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .fill(Color.white.opacity(0.12))
+                    // Subtle stroke
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                }
+                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
+                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
             )
     }
 }

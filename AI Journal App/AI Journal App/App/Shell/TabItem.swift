@@ -26,13 +26,13 @@ enum TabItem: String, CaseIterable, Identifiable {
         }
     }
     
-    var systemImage: String {
+    var icon: SystemIcon {
         switch self {
-        case .today: return "house"
-        case .inspire: return "sparkles"
-        case .brainDump: return "plus.circle.fill"
-        case .library: return "books.vertical"
-        case .stats: return "chart.line.uptrend.xyaxis"
+        case .today: return .house
+        case .inspire: return .sparkles
+        case .brainDump: return .plusCircleFill
+        case .library: return .booksVertical
+        case .stats: return .chartLineUptrendXYAxis
         }
     }
     

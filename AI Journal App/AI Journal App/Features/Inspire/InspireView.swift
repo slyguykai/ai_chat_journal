@@ -17,13 +17,13 @@ enum InspirationCategory: String, CaseIterable {
     var icon: String {
         switch self {
         case .quote:
-            return "sparkles"
+            return SystemIcon.sparkles.rawValue
         case .affirmation:
-            return "heart.fill"
+            return SystemIcon.heartFill.rawValue
         case .growth:
-            return "chart.line.uptrend.xyaxis"
+            return SystemIcon.chartLineUptrendXYAxis.rawValue
         case .mindful:
-            return "leaf.fill"
+            return SystemIcon.leafFill.rawValue
         }
     }
     
@@ -78,7 +78,7 @@ struct InspireView: View {
             
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
-                    TopBarCapsule(iconSystemName: "sparkles", title: "Daily Inspiration")
+                    TopBarCapsule(iconSystemName: SystemIcon.sparkles.rawValue, title: "Daily Inspiration")
                     
                     // Title and subtitle block
                     VStack(alignment: .leading, spacing: AppSpacing.s) {
@@ -99,12 +99,13 @@ struct InspireView: View {
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Daily quote: \(inspirationContent.first { $0.category == .quote }?.content ?? "")")
                         
-                    // List tiles with translucent glass style
+                    // List tiles with glass style and press interaction
                     LazyVStack(spacing: AppSpacing.m) {
                         ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
                             GlassCard(cornerRadius: AppRadii.large) {
                                 TileRow(content: content)
                             }
+                            .cardPress()
                         }
                     }
                     .padding(.bottom, AppSpacing.xl)
@@ -126,7 +127,7 @@ private struct QuoteHeroCard: View {
     
     var body: some View {
         VStack(spacing: AppSpacing.s) {
-            Image(systemName: "sparkles")
+            Image(system: .sparkles)
                 .font(.system(size: 22, weight: .semibold))
                 .foregroundColor(AppColors.coral)
             

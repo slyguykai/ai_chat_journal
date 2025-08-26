@@ -19,25 +19,7 @@ struct GlassCard<Content: View>: View {
     var body: some View {
         content()
             .padding(AppSpacing.m)
-            .background(
-                ZStack {
-                    // Material base with blur
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(.ultraThinMaterial)
-                        .blur(radius: 20)
-                    // Subtle inner highlight for premium sheen
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .fill(Color.white.opacity(0.10))
-                        .blendMode(.screen)
-                    // Crisp stroke for definition
-                    RoundedRectangle(cornerRadius: cornerRadius)
-                        .stroke(Color.white.opacity(0.35), lineWidth: 1)
-                }
-                .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
-                // Dual shadow: soft ambient + contact for depth
-                .shadow(color: Color.black.opacity(0.10), radius: 20, x: 0, y: 12)
-                .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 2)
-            )
+            .glassCard(cornerRadius: cornerRadius)
     }
 }
 
@@ -54,7 +36,7 @@ struct GlassCard<Content: View>: View {
         Spacer()
     }
     .padding(AppSpacing.m)
-    .background(GradientBackground.peachCream)
+    .pastelBackground(.peachCream)
 }
 
 #Preview("GlassCard - Dark") {
@@ -68,6 +50,6 @@ struct GlassCard<Content: View>: View {
         Spacer()
     }
     .padding(AppSpacing.m)
-    .background(GradientBackground.blushLavender)
+    .pastelBackground(.blushLavender)
     .preferredColorScheme(.dark)
 }

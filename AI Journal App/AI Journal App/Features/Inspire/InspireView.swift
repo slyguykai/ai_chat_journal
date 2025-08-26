@@ -57,26 +57,7 @@ struct InspireView: View {
     
     var body: some View {
         ZStack(alignment: .top) {
-            // Premium layered background (no hit testing)
-            GradientBackground.blushLavender
-                .overlay(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.15), Color.clear],
-                        startPoint: .top,
-                        endPoint: .center
-                    )
-                    .allowsHitTesting(false)
-                )
-                .overlay(
-                    RadialGradient(
-                        colors: [Color.white.opacity(0.12), Color.clear],
-                        center: .topLeading,
-                        startRadius: 0,
-                        endRadius: 380
-                    )
-                    .allowsHitTesting(false)
-                )
-                .ignoresSafeArea(.container, edges: [.top, .bottom])
+            Color.clear.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
@@ -96,12 +77,12 @@ struct InspireView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     
-                    // Quote hero card (gradient tile)
+                    // Quote hero card
                     QuoteHeroCard(content: inspirationContent.first { $0.category == .quote }!)
                         .accessibilityElement(children: .combine)
                         .accessibilityLabel("Daily quote: \(inspirationContent.first { $0.category == .quote }?.content ?? "")")
                         
-                    // List tiles with glass style and press interaction
+                    // List tiles
                     LazyVStack(spacing: AppSpacing.m) {
                         ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
                             GlassCard(cornerRadius: AppRadii.large) {
@@ -119,6 +100,7 @@ struct InspireView: View {
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
         }
+        .pastelBackground(.blushLavender, animated: true)
     }
 }
 

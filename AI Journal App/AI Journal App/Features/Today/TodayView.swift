@@ -9,14 +9,19 @@ import SwiftUI
 
 struct TodayView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showConfetti = false
     
     var body: some View {
         ZStack {
-            GradientBackground.peachCream
-                .ignoresSafeArea(.container, edges: [.top, .bottom])
+            Color.clear
+                .ignoresSafeArea()
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
                     TopBarCapsule(iconSystemName: "house", title: "Today")
+                    HStack(spacing: AppSpacing.m) {
+                        ProgressTrailView(mode: .today(completed: false))
+                        Spacer()
+                    }
                     header
                     promptCard
                     Spacer(minLength: AppSpacing.l)
@@ -27,7 +32,13 @@ struct TodayView: View {
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
             .safeAreaInset(edge: .bottom) { Spacer().frame(height: AppSpacing.l) }
+            
+            if showConfetti {
+                ConfettiView(duration: 1.2, colors: [AppColors.coral, AppColors.peach, AppColors.apricot])
+                    .transition(.opacity)
+            }
         }
+        .pastelBackground(.peachCream, animated: true)
         .appTheme()
     }
     
@@ -35,12 +46,8 @@ struct TodayView: View {
     
     private var header: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text(greeting())
-                .titleXL(weight: .bold)
-                .foregroundColor(AppColors.inkPrimary)
-            Text("Keep the momentum going")
-                .body()
-                .foregroundColor(AppColors.inkSecondary)
+            TextEffects.words(greeting(), font: AppTypography.titleXL, weight: .bold, color: AppColors.inkPrimary)
+            TextEffects.words("Keep the momentum going", font: AppTypography.body, color: AppColors.inkSecondary)
         }
     }
     
@@ -53,7 +60,7 @@ struct TodayView: View {
                 .titleM(weight: .medium)
                 .foregroundColor(AppColors.inkPrimary)
             HStack(spacing: AppSpacing.m) {
-                Button("Reflect") { Haptics.light() }
+                Button("Reflect") { Haptics.light(); withAnimation { showConfetti = true }; DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { withAnimation { showConfetti = false } } }
                     .buttonStyle(PrimaryButtonStyle())
                     .accessibilityLabel("Reflect on this prompt")
                 Button("Try later") { Haptics.light() }

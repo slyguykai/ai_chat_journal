@@ -35,6 +35,13 @@ struct CircularCTA: View {
                             endPoint: .bottomTrailing
                         )
                     )
+                    .overlay(
+                        Circle()
+                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
+                            .blur(radius: 2)
+                            .offset(x: -1, y: -1)
+                            .mask(Circle().fill(LinearGradient(colors: [.white, .clear], startPoint: .topLeading, endPoint: .bottomTrailing)))
+                    )
                 Image(system: .plusCircleFill)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)

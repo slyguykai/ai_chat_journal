@@ -14,12 +14,11 @@ struct BrainDumpBackground: View {
     
     var body: some View {
         ZStack {
-            // Base gradient background
-            GradientBackground.sunrise
-            
+            Color.clear
             // Animated overlay layer
             AnimatedParticleLayer(animationOffset: animationOffset, isVisible: isVisible)
         }
+        .pastelBackground(.sunrise, animated: true)
         .onAppear {
             isVisible = true
             startAnimation()
@@ -32,7 +31,6 @@ struct BrainDumpBackground: View {
     
     private func startAnimation() {
         guard isVisible else { return }
-        
         withAnimation(.linear(duration: 20).repeatForever(autoreverses: false)) {
             animationOffset = 1000
         }
@@ -57,26 +55,15 @@ private struct AnimatedParticleLayer: View {
     
     private func drawFloatingElements(context: GraphicsContext, size: CGSize, time: TimeInterval) {
         let particleCount = 8
-        
         for i in 0..<particleCount {
             let phase = time * 0.5 + Double(i) * 0.8
             let x = size.width * 0.1 + (size.width * 0.8) * CGFloat(sin(phase * 0.3 + Double(i)))
             let y = size.height * 0.2 + (size.height * 0.6) * CGFloat(cos(phase * 0.2 + Double(i) * 0.7))
-            
             let radius = 3 + 2 * CGFloat(sin(phase * 2))
             let opacity = 0.4 + 0.3 * sin(phase * 1.5)
-            
-            // Use design tokens for colors
-            let color = i % 2 == 0 ? 
-                Color.white.opacity(opacity) : 
-                AppColors.apricot.opacity(opacity * 0.8)
-            
+            let color = i % 2 == 0 ? Color.white.opacity(opacity) : AppColors.apricot.opacity(opacity * 0.8)
             let rect = CGRect(x: x - radius, y: y - radius, width: radius * 2, height: radius * 2)
-            
-            context.fill(
-                Path(ellipseIn: rect),
-                with: .color(color)
-            )
+            context.fill(Path(ellipseIn: rect), with: .color(color))
         }
     }
 }
@@ -92,11 +79,7 @@ private struct AnimatedGradientLayer: View {
             GeometryReader { geometry in
                 ZStack {
                     ForEach(0..<3, id: \.self) { index in
-                        FloatingOrb(
-                            index: index,
-                            size: geometry.size,
-                            animationOffset: animationOffset
-                        )
+                        FloatingOrb(index: index, size: geometry.size, animationOffset: animationOffset)
                     }
                 }
             }
@@ -130,11 +113,7 @@ private struct FloatingOrb: View {
         Circle()
             .fill(
                 RadialGradient(
-                    gradient: Gradient(colors: [
-                        orbColor.opacity(0.6),
-                        orbColor.opacity(0.1),
-                        Color.clear
-                    ]),
+                    gradient: Gradient(colors: [orbColor.opacity(0.6), orbColor.opacity(0.1), Color.clear]),
                     center: .center,
                     startRadius: 0,
                     endRadius: 40
@@ -150,31 +129,4 @@ private struct FloatingOrb: View {
 
 #Preview("Brain Dump Background - Light") {
     BrainDumpBackground()
-        .overlay(
-            VStack {
-                Text("New Day, Fresh Start!")
-                    .titleXL(weight: .bold)
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Text("Animated Background Preview")
-                    .body()
-                    .foregroundColor(.white.opacity(0.8))
-            }
-            .padding(AppSpacing.l)
-        )
-}
-
-#Preview("Brain Dump Background - Performance Test") {
-    ScrollView {
-        LazyVStack {
-            ForEach(0..<20, id: \.self) { _ in
-                BrainDumpBackground()
-                    .frame(height: 200)
-                    .cornerRadius(AppRadii.medium)
-                    .padding(AppSpacing.s)
-            }
-        }
-    }
 }

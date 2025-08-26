@@ -9,39 +9,23 @@ import SwiftUI
 
 struct TabBarBackgroundView: View {
     let selectedIndex: Int
+    @Environment(ChromeState.self) private var chrome
     
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
-                // Canvas tint below material for premium look
-                ZStack {
-                    Rectangle().fill(AppColors.canvas.opacity(0.75))
-                    Rectangle().fill(.ultraThinMaterial)
-                }
-                
+                GlassStyle.tabBar()
                 // Top divider line
                 Rectangle()
                     .fill(AppColors.divider)
                     .frame(height: 1)
                     .frame(maxHeight: .infinity, alignment: .top)
-                
                 // Soft radial glow under selected tab
                 glow(in: geo.size)
             }
-            .compositingGroup()
-            .mask(
-                LinearGradient(
-                    gradient: Gradient(stops: [
-                        .init(color: .clear, location: 0.0),
-                        .init(color: .black, location: 0.55),
-                        .init(color: .black, location: 1.0)
-                    ]),
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
         }
-        .frame(height: 92)
+        .frame(height: chrome.condensedTab ? 56 : 92)
+        .animation(.easeInOut(duration: 0.2), value: chrome.condensedTab)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
     }
@@ -61,9 +45,6 @@ struct TabBarBackgroundView: View {
 }
 
 #Preview("TabBar Background") {
-    VStack {
-        Spacer()
-        TabBarBackgroundView(selectedIndex: 2)
-    }
+    VStack { Spacer(); TabBarBackgroundView(selectedIndex: 2).environment(ChromeState()) }
 }
 

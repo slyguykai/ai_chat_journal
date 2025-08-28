@@ -10,9 +10,9 @@ import SwiftUI
 struct BrainDumpView: View {
     @StateObject private var viewModel: BrainDumpViewModel
     @FocusState private var isFocused: Bool
-    @State private var selectedMood: MoodType? = nil
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var showConfetti = false
+    @State private var controlsVisible = false
     
     init(viewModel: BrainDumpViewModel) {
         self._viewModel = StateObject(wrappedValue: viewModel)
@@ -20,17 +20,11 @@ struct BrainDumpView: View {
     
     var body: some View {
         ZStack {
-            Color.clear
+            BrainDumpBackground()
             ScrollViewReader { _ in
                 ScrollView {
                     VStack(spacing: AppSpacing.l) {
-                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                            TextEffects.words("Brain Dump", font: AppTypography.titleXL, weight: .bold, color: AppColors.inkPrimary)
-                            TextEffects.words("Let your thoughts flow freely", font: AppTypography.body, color: AppColors.inkSecondary)
-                        }
-                        .padding(.horizontal, AppSpacing.m)
-                        
-                        // Full-height glass card with editor
+                        // Indented "writing well" editor surface
                         VStack(alignment: .leading, spacing: AppSpacing.m) {
                             PlaceholderTextEditor(
                                 text: Binding(
@@ -40,20 +34,16 @@ struct BrainDumpView: View {
                                 placeholder: "What’s on your mind?",
                                 font: AppTypography.body,
                                 foreground: AppColors.inkPrimary,
-                                placeholderColor: AppColors.inkSecondary
+                                placeholderColor: AppColors.inkSecondary,
+                                tint: AppColors.accent
                             )
                             .focused($isFocused)
                             .frame(minHeight: UIScreen.main.bounds.height * 0.7)
                             .scrollDismissesKeyboard(.interactively)
                         }
                         .padding(AppSpacing.l)
-                        .background(
-                            RoundedRectangle(cornerRadius: AppRadii.large)
-                                .fill(.ultraThinMaterial)
-                                .overlay(RoundedRectangle(cornerRadius: AppRadii.large).fill(Color.white.opacity(0.12)))
-                                .overlay(RoundedRectangle(cornerRadius: AppRadii.large).stroke(Color.white.opacity(0.30), lineWidth: 1))
-                                .shadow(color: .black.opacity(0.12), radius: 12, x: 0, y: 6)
-                        )
+                        .background(AppColors.background)
+                        .neumorphIndented(cornerRadius: AppRadii.large, distance: 6, blur: 10)
                         .padding(.horizontal, AppSpacing.m)
                         
                         Spacer(minLength: AppSpacing.l)
@@ -61,9 +51,8 @@ struct BrainDumpView: View {
                     .padding(.top, AppSpacing.m)
                 }
             }
-            if showConfetti { ConfettiView(duration: 1.2, colors: [AppColors.coral, AppColors.peach, AppColors.apricot]).transition(.opacity) }
+            if showConfetti { ConfettiView(duration: 1.2, colors: [AppColors.accent, AppColors.neoHighlight, AppColors.neoShadow]).transition(.opacity) }
         }
-        .pastelBackground(.sunrise, animated: !reduceMotion)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 HStack(spacing: AppSpacing.m) {
@@ -71,18 +60,29 @@ struct BrainDumpView: View {
                     HStack(spacing: AppSpacing.s) {
                         ForEach(MoodType.allCases, id: \.self) { mood in
                             Button {
-                                selectedMood = mood
+                                viewModel.selectedMood = mood
                                 Haptics.light()
                             } label: {
-                                MoodEmojiView(type: mood, size: .small, isSelected: selectedMood == mood)
+                                MoodEmojiView(type: mood, size: .small, isSelected: viewModel.selectedMood == mood)
                             }
+                            .buttonStyle(TactileIconButtonStyle())
                             .accessibilityLabel(mood.accessibilityLabel)
+                            .accessibilityIdentifier("mood_\(mood.rawValue)_button")
                             .frame(minWidth: 44, minHeight: 44)
                         }
                     }
                     Spacer()
-                    // Mic button placeholder
-                    Button { Haptics.light() } label: { Image(systemName: "mic.fill").font(.system(size: 16, weight: .semibold)) }
+                    // Mic dictation toggle
+                    Button {
+                        Haptics.light()
+                        viewModel.toggleDictation()
+                    } label: {
+                        Image(systemName: viewModel.isDictating ? "mic.circle.fill" : "mic.fill")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundColor(viewModel.isDictating ? AppColors.accent : AppColors.inkPrimary)
+                    }
+                    .buttonStyle(TactileIconButtonStyle())
+                    .accessibilityIdentifier("mic_button")
                         .frame(minWidth: 44, minHeight: 44)
                         .accessibilityLabel("Record voice note")
                     
@@ -93,14 +93,24 @@ struct BrainDumpView: View {
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { withAnimation { showConfetti = false } }
                     }
                     .disabled(!viewModel.canSave)
-                    .buttonStyle(PrimaryButtonStyle())
+                    .buttonStyle(TactilePrimaryButtonStyle())
                     .frame(minHeight: 44)
                     .accessibilityLabel("Save entry")
+                    .accessibilityIdentifier("save_entry_button")
                 }
+                .opacity(controlsVisible ? 1 : 0)
+                .animation(.spring(response: 0.4, dampingFraction: 0.9), value: controlsVisible)
+                .disabled(!controlsVisible)
             }
         }
-        .onChange(of: viewModel.state) { newState in
+        .onChange(of: viewModel.state) { _, newState in
             if case .saved = newState { Haptics.success() }
+            controlsVisible = !newState.currentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+        .onAppear {
+            viewModel.startEditing()
+            isFocused = true
+            controlsVisible = !viewModel.state.currentText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
         }
     }
 }

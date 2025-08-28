@@ -10,6 +10,13 @@ import SwiftUI
 struct TopBarCapsule: View {
     let iconSystemName: String
     let title: String
+    let menu: AnyView?
+    
+    init(iconSystemName: String, title: String, menu: AnyView? = nil) {
+        self.iconSystemName = iconSystemName
+        self.title = title
+        self.menu = menu
+    }
     
     var body: some View {
         HStack {
@@ -34,15 +41,23 @@ struct TopBarCapsule: View {
             )
             .accessibilityLabel(title)
             Spacer()
-            Image(system: .ellipsis)
-                .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(AppColors.inkPrimary.opacity(0.6))
+            if let menu {
+                Menu { menu } label: {
+                    Image(system: .ellipsis)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(AppColors.inkPrimary.opacity(0.6))
+                }
+            } else {
+                Image(system: .ellipsis)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(AppColors.inkPrimary.opacity(0.6))
+            }
         }
     }
 }
 
 #Preview("TopBarCapsule") {
-    TopBarCapsule(iconSystemName: SystemIcon.sparkles.rawValue, title: "Daily Inspiration")
+    TopBarCapsule(iconSystemName: SystemIcon.sparkles.rawValue, title: "Daily Inspiration", menu: AnyView(Button("Settings") {}))
         .padding()
         .background(GradientBackground.blushLavender)
 }

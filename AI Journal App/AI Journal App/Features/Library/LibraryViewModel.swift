@@ -14,9 +14,9 @@ final class LibraryViewModel: ObservableObject {
     @Published private(set) var entries: [JournalEntry] = []
     @Published private(set) var filtered: [JournalEntry] = []
     
-    private let entryStore: EntryStore
+    let entryStore: any EntryStore
     
-    init(entryStore: EntryStore) {
+    init(entryStore: any EntryStore) {
         self.entryStore = entryStore
     }
     
@@ -27,6 +27,15 @@ final class LibraryViewModel: ObservableObject {
             filterEntries()
         } catch {
             // For now, ignore errors for mock store
+        }
+    }
+    
+    func delete(_ entry: JournalEntry) async {
+        do {
+            try await entryStore.deleteEntry(id: entry.id)
+            await load()
+        } catch {
+            // Intentionally ignore for now; could surface an error state
         }
     }
     

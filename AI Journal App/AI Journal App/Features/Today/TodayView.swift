@@ -9,17 +9,32 @@ import SwiftUI
 
 struct TodayView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var showSettings = false
     @State private var showConfetti = false
+    @StateObject private var statsViewModel: TodayViewModel
+    
+    init(viewModel: TodayViewModel) {
+        _statsViewModel = StateObject(wrappedValue: viewModel)
+    }
     
     var body: some View {
         ZStack {
-            Color.clear
+            AppColors.background
                 .ignoresSafeArea()
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
-                    TopBarCapsule(iconSystemName: "house", title: "Today")
+                    TopBarCapsule(
+                        iconSystemName: "house",
+                        title: "Today",
+                        menu: AnyView(
+                            Group {
+                                Button("Settings") { showSettings = true }
+                                Button("About") {}
+                            }
+                        )
+                    )
                     HStack(spacing: AppSpacing.m) {
-                        ProgressTrailView(mode: .today(completed: false))
+                        ProgressTrailView(mode: .today(completed: statsViewModel.hasEntryToday))
                         Spacer()
                     }
                     header
@@ -38,8 +53,9 @@ struct TodayView: View {
                     .transition(.opacity)
             }
         }
-        .pastelBackground(.peachCream, animated: true)
         .appTheme()
+        .sheet(isPresented: $showSettings) { NavigationStack { SettingsView() } }
+        .task { await statsViewModel.refresh() }
     }
     
     // MARK: - Sections
@@ -52,31 +68,32 @@ struct TodayView: View {
     }
     
     private var promptCard: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.m) {
-            Text("Mini Prompt")
-                .body(weight: .semibold)
-                .foregroundColor(AppColors.inkPrimary)
-            Text("What made you smile today?")
-                .titleM(weight: .medium)
-                .foregroundColor(AppColors.inkPrimary)
-            HStack(spacing: AppSpacing.m) {
-                Button("Reflect") { Haptics.light(); withAnimation { showConfetti = true }; DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { withAnimation { showConfetti = false } } }
-                    .buttonStyle(PrimaryButtonStyle())
+        SurfaceCard(cornerRadius: AppRadii.large) {
+            VStack(alignment: .leading, spacing: AppSpacing.m) {
+                Text("Mini Prompt")
+                    .body(weight: .semibold)
+                    .foregroundColor(AppColors.inkPrimary)
+                Text("What made you smile today?")
+                    .titleM(weight: .medium)
+                    .foregroundColor(AppColors.inkPrimary)
+                HStack(spacing: AppSpacing.m) {
+                    Button("Reflect") {
+                        Haptics.light()
+                        NotificationCenter.default.post(name: AppNotification.navigateToBrainDump, object: nil)
+                        withAnimation { showConfetti = true }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) { withAnimation { showConfetti = false } }
+                    }
+                    .buttonStyle(TactilePrimaryButtonStyle())
                     .accessibilityLabel("Reflect on this prompt")
-                Button("Try later") { Haptics.light() }
-                    .buttonStyle(SecondaryButtonStyle())
+                    Button("Try later") {
+                        Haptics.light()
+                        Task { await NotificationManager.scheduleReminder(in: 3600, title: "Jot a thought", body: "Take a minute to reflect today.") }
+                    }
+                    .buttonStyle(TactileSecondaryButtonStyle())
                     .accessibilityLabel("Save prompt for later")
+                }
             }
         }
-        .padding(AppSpacing.m)
-        .background(
-            RoundedRectangle(cornerRadius: AppRadii.medium)
-                .fill(.ultraThinMaterial)
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadii.medium)
-                        .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                )
-        )
     }
     
     // MARK: - Helpers
@@ -117,6 +134,6 @@ struct StreakChip: View {
 
 // MARK: - Previews
 
-#Preview("Today - Light") { TodayView() }
-#Preview("Today - Dark") { TodayView().preferredColorScheme(.dark) }
-#Preview("Today - Large Type") { TodayView().environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge) }
+#Preview("Today - Light") { TodayView(viewModel: TodayViewModel(entryStore: MockEntryStore())) }
+#Preview("Today - Dark") { TodayView(viewModel: TodayViewModel(entryStore: MockEntryStore())).preferredColorScheme(.dark) }
+#Preview("Today - Large Type") { TodayView(viewModel: TodayViewModel(entryStore: MockEntryStore())).environment(\.sizeCategory, .accessibilityExtraExtraExtraLarge) }

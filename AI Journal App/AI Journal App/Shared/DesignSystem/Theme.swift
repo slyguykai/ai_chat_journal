@@ -53,9 +53,9 @@ extension AppTheme {
         light: ColorPalette(
             inkPrimary: AppColors.inkPrimary,
             inkSecondary: AppColors.inkSecondary,
-            canvas: AppColors.canvas,
-            surface: AppColors.surface,
-            divider: AppColors.divider,
+            canvas: AppColors.background,
+            surface: AppColors.background,
+            divider: AppColors.neoShadow,
             peach: AppColors.peach,
             coral: AppColors.coral,
             apricot: AppColors.apricot,
@@ -189,5 +189,4 @@ private struct ThemeColorCard: View {
         }
     }
 }
-
 

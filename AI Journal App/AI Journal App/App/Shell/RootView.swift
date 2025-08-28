@@ -20,7 +20,7 @@ struct RootView: View {
             ZStack {
                 TabView(selection: $selectedTab) {
                     // Today Tab (from Features/Today)
-                    TodayView()
+                    TodayView(viewModel: TodayViewModel(entryStore: container.entryStore))
                         .background(scrollProbe())
                         .onPreferenceChange(ScrollOffsetKey.self) { updateCondensed(from: $0) }
                         .tabItem { TabItemView(tab: .today, isSelected: selectedTab == .today) }
@@ -48,13 +48,13 @@ struct RootView: View {
                         .tag(TabItem.library)
                     
                     // Stats Tab
-                    StatsView(viewModel: StatsViewModel())
+                    StatsView(viewModel: StatsViewModel(entryStore: container.entryStore))
                         .background(scrollProbe())
                         .onPreferenceChange(ScrollOffsetKey.self) { updateCondensed(from: $0) }
                         .tabItem { TabItemView(tab: .stats, isSelected: selectedTab == .stats) }
                         .tag(TabItem.stats)
                 }
-                .accentColor(AppColors.coral)
+                .accentColor(AppColors.accent)
                 .animation(.easeInOut(duration: 0.2), value: selectedTab)
                 // Place premium glass behind content & tabs
                 .background(alignment: .bottom) {
@@ -81,7 +81,8 @@ struct RootView: View {
                             }
                         },
                         accessibilityLabel: TabItem.brainDump.accessibilityLabel,
-                        accessibilityHint: TabItem.brainDump.accessibilityHint
+                        accessibilityHint: TabItem.brainDump.accessibilityHint,
+                        backgroundColor: .black
                     )
                     .scaleEffect(showBrainDumpTransition ? 1.05 : 1.0)
                     .opacity(showBrainDumpTransition ? 0.9 : 1.0)
@@ -95,6 +96,9 @@ struct RootView: View {
         .toolbarBackground(.visible, for: .tabBar)
         .toolbar(.hidden, for: .navigationBar)
         .navigationBarBackButtonHidden()
+        .onReceive(NotificationCenter.default.publisher(for: AppNotification.navigateToBrainDump)) { _ in
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.9)) { selectedTab = .brainDump }
+        }
     }
     
     private func scrollProbe() -> some View {
@@ -128,16 +132,34 @@ struct TabItemView: View {
     let isSelected: Bool
     
     var body: some View {
-        VStack(spacing: 4) {
-            Image(system: tab.icon)
-                .font(.system(size: 20, weight: .medium))
-                .frame(minWidth: 44, minHeight: 44)
+        VStack(spacing: 2) {
+            Image(systemName: symbolName)
+                .font(.system(size: 20, weight: isSelected ? .semibold : .regular))
+                .foregroundColor(isSelected ? .black : AppColors.inkPrimary.opacity(0.6))
+                .frame(minWidth: 44, minHeight: 28)
             Text(tab.title)
                 .font(.caption2)
+                .foregroundColor(isSelected ? .black : AppColors.inkPrimary.opacity(0.6))
         }
+        .animation(.easeInOut(duration: 0.15), value: isSelected)
         .accessibilityLabel(tab.accessibilityLabel)
         .accessibilityHint(tab.accessibilityHint)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+    
+    private var symbolName: String {
+        switch tab {
+        case .today:
+            return isSelected ? "envelope.fill" : "envelope"
+        case .inspire:
+            return isSelected ? "lightbulb.fill" : "lightbulb"
+        case .brainDump:
+            return isSelected ? "plus.circle.fill" : "plus.circle"
+        case .library:
+            return isSelected ? "book.fill" : "book"
+        case .stats:
+            return isSelected ? "book.closed.fill" : "book.closed"
+        }
     }
 }
 

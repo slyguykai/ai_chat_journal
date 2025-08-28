@@ -36,10 +36,10 @@ extension View {
 }
 
 #Preview("Card Press") {
-    GlassCard {
+    SurfaceCard {
         Text("Press me").titleM(weight: .semibold)
     }
     .cardPress()
     .padding()
-    .background(GradientBackground.peachCream)
+    .background(AppColors.background)
 }

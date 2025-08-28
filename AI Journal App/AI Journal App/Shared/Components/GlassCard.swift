@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct GlassCard<Content: View>: View {
+    // Backward-compatible wrapper around SurfaceCard for migration
     let cornerRadius: CGFloat
     let content: () -> Content
     
@@ -17,9 +18,7 @@ struct GlassCard<Content: View>: View {
     }
     
     var body: some View {
-        content()
-            .padding(AppSpacing.m)
-            .glassCard(cornerRadius: cornerRadius)
+        SurfaceCard(cornerRadius: cornerRadius) { content() }
     }
 }
 
@@ -27,7 +26,7 @@ struct GlassCard<Content: View>: View {
 
 #Preview("GlassCard - Light") {
     VStack(spacing: AppSpacing.m) {
-        GlassCard {
+        SurfaceCard {
             VStack(alignment: .leading, spacing: AppSpacing.s) {
                 Text("Title").titleM(weight: .semibold).foregroundColor(AppColors.inkPrimary)
                 Text("Supporting copy goes here.").body().foregroundColor(AppColors.inkSecondary)
@@ -41,7 +40,7 @@ struct GlassCard<Content: View>: View {
 
 #Preview("GlassCard - Dark") {
     VStack(spacing: AppSpacing.m) {
-        GlassCard {
+        SurfaceCard {
             VStack(alignment: .leading, spacing: AppSpacing.s) {
                 Text("Title").titleM(weight: .semibold).foregroundColor(.white)
                 Text("Supporting copy goes here.").body().foregroundColor(.white.opacity(0.8))

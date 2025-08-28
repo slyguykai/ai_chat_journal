@@ -16,7 +16,7 @@ struct StatsView: View {
     }
     
     var body: some View {
-        ZStack { GradientBackground.peachCream.ignoresSafeArea(.container, edges: [.top, .bottom]) }
+        ZStack { AppColors.background.ignoresSafeArea(.container, edges: [.top, .bottom]) }
             .overlay(
                 ScrollView {
                     VStack(alignment: .leading, spacing: AppSpacing.l) {
@@ -46,40 +46,37 @@ struct StatsView: View {
     private var chartSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.m) {
             Text("7-day Mood").titleM(weight: .semibold).foregroundColor(AppColors.inkPrimary)
-            Chart(viewModel.last7Days) { point in
-                LineMark(
-                    x: .value("Day", point.date),
-                    y: .value("Mood", point.moodScore)
-                )
-                .interpolationMethod(.monotone)
-                .foregroundStyle(AppColors.lavender)
-                AreaMark(
-                    x: .value("Day", point.date),
-                    y: .value("Mood", point.moodScore)
-                )
-                .interpolationMethod(.monotone)
-                .foregroundStyle(Gradient(colors: [AppColors.lavender.opacity(0.35), .clear]))
-            }
-            .chartYAxis {
-                AxisMarks(position: .leading) { value in
-                    AxisValueLabel() { if let doubleValue = value.as(Double.self) { Text("\(Int(doubleValue))").body() } }
+            SurfaceCard(cornerRadius: AppRadii.large) {
+                Chart(viewModel.last7Days) { point in
+                    LineMark(
+                        x: .value("Day", point.date),
+                        y: .value("Mood", point.moodScore)
+                    )
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(AppColors.accent)
+                    AreaMark(
+                        x: .value("Day", point.date),
+                        y: .value("Mood", point.moodScore)
+                    )
+                    .interpolationMethod(.monotone)
+                    .foregroundStyle(Gradient(colors: [AppColors.accent.opacity(0.25), .clear]))
                 }
-            }
-            .chartXAxis {
-                AxisMarks(values: .stride(by: .day)) { value in
-                    AxisValueLabel() {
-                        if let date = value.as(Date.self) {
-                            Text(date, format: .dateTime.weekday(.abbreviated)).caption()
+                .chartYAxis {
+                    AxisMarks(position: .leading) { value in
+                        AxisValueLabel() { if let doubleValue = value.as(Double.self) { Text("\(Int(doubleValue))").body() } }
+                    }
+                }
+                .chartXAxis {
+                    AxisMarks(values: .stride(by: .day)) { value in
+                        AxisValueLabel() {
+                            if let date = value.as(Date.self) {
+                                Text(date, format: .dateTime.weekday(.abbreviated)).caption()
+                            }
                         }
                     }
                 }
+                .frame(height: 220)
             }
-            .frame(height: 220)
-            .background(
-                RoundedRectangle(cornerRadius: AppRadii.large)
-                    .fill(.ultraThinMaterial)
-                    .overlay(RoundedRectangle(cornerRadius: AppRadii.large).stroke(Color.white.opacity(0.3), lineWidth: 1))
-            )
         }
     }
     

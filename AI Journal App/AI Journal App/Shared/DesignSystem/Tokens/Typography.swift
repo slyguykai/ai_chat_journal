@@ -7,29 +7,17 @@
 
 import SwiftUI
 
-/// Typography system using SF Pro with Dynamic Type support
+/// Typography using SF Pro Rounded with Dynamic Type support
 struct AppTypography {
     
-    // MARK: - Title Styles
+    // MARK: - Title Styles (rounded)
+    static let titleXL: Font = .system(.largeTitle, design: .rounded)
+    static let titleL: Font = .system(.title, design: .rounded)
+    static let titleM: Font = .system(.title2, design: .rounded)
     
-    /// Extra large title (SF Pro Display, 34pt)
-    static let titleXL = Font.custom("SF Pro Display", size: 34, relativeTo: .largeTitle)
-    
-    /// Large title (SF Pro Display, 28pt)
-    static let titleL = Font.custom("SF Pro Display", size: 28, relativeTo: .title)
-    
-    /// Medium title (SF Pro Display, 22pt)
-    static let titleM = Font.custom("SF Pro Display", size: 22, relativeTo: .title2)
-    
-    // MARK: - Body Styles
-    
-    /// Body text (SF Pro Text, 17pt)
-    static let body = Font.custom("SF Pro Text", size: 17, relativeTo: .body)
-    
-    /// Caption text (SF Pro Text, 12pt)
-    static let caption = Font.custom("SF Pro Text", size: 12, relativeTo: .caption)
-    
-    // MARK: - Font Weights
+    // MARK: - Body Styles (rounded)
+    static let body: Font = .system(.body, design: .rounded)
+    static let caption: Font = .system(.caption, design: .rounded)
     
     struct Weight {
         static let regular = Font.Weight.regular
@@ -207,5 +195,4 @@ private struct TypographyRow: View {
         }
     }
 }
-
 

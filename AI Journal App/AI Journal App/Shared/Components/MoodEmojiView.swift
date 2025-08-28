@@ -108,20 +108,31 @@ struct MoodEmojiView: View {
         switch type {
         case .happy:
             Image(systemName: "face.smiling")
-                .font(.system(size: iconSize * 0.7))
+                .font(.system(size: iconSize * 0.8))
         case .sad:
-            Image(systemName: "face.dashed")
-                .font(.system(size: iconSize * 0.7))
+            Image(systemName: "face.frown")
+                .font(.system(size: iconSize * 0.8))
         case .neutral:
-            Image(systemName: "minus")
-                .font(.system(size: iconSize * 0.5, weight: .medium))
+            Image(systemName: "face.neutral")
+                .font(.system(size: iconSize * 0.8))
         case .excited:
-            Image(systemName: "sparkles")
-                .font(.system(size: iconSize * 0.6))
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: "face.smiling")
+                    .font(.system(size: iconSize * 0.8))
+                Image(systemName: "sparkles")
+                    .font(.system(size: iconSize * 0.4, weight: .semibold))
+                    .foregroundColor(AppColors.accent)
+                    .offset(x: 4, y: -4)
+            }
         case .love:
-            Image(systemName: "heart.fill")
-                .font(.system(size: iconSize * 0.6))
-                .foregroundColor(AppColors.coral)
+            ZStack(alignment: .bottomTrailing) {
+                Image(systemName: "face.smiling")
+                    .font(.system(size: iconSize * 0.8))
+                Image(systemName: "heart.fill")
+                    .font(.system(size: iconSize * 0.4, weight: .semibold))
+                    .foregroundColor(AppColors.accent)
+                    .offset(x: 4, y: 4)
+            }
         }
     }
 }
@@ -145,7 +156,7 @@ struct MoodSelectionGrid: View {
                         isSelected: selectedMood == mood
                     )
                 }
-                .buttonStyle(PlainButtonStyle())
+                .buttonStyle(TactileIconButtonStyle())
             }
         }
     }

@@ -14,14 +14,19 @@ struct TabBarBackgroundView: View {
     var body: some View {
         GeometryReader { geo in
             ZStack(alignment: .top) {
-                GlassStyle.tabBar()
-                // Top divider line
+                // Neomorphic tab bar surface
                 Rectangle()
-                    .fill(AppColors.divider)
-                    .frame(height: 1)
+                    .fill(AppColors.background)
+                    .shadow(color: AppColors.neoHighlight.opacity(0.8), radius: 8, x: 0, y: -1)
+                    .shadow(color: AppColors.neoShadow.opacity(0.9), radius: 12, x: 0, y: 6)
+                // Top subtle divider
+                Rectangle()
+                    .fill(AppColors.neoShadow.opacity(0.6))
+                    .frame(height: 0.5)
                     .frame(maxHeight: .infinity, alignment: .top)
-                // Soft radial glow under selected tab
+                // Optional soft accent glow under selected tab (very subtle)
                 glow(in: geo.size)
+                    .opacity(0.15)
             }
         }
         .frame(height: chrome.condensedTab ? 56 : 92)
@@ -35,7 +40,7 @@ struct TabBarBackgroundView: View {
         let width = size.width / tabCount
         let x = width * (CGFloat(selectedIndex) + 0.5)
         return RadialGradient(
-            colors: [AppColors.coral.opacity(0.12), .clear],
+            colors: [AppColors.accent.opacity(0.2), .clear],
             center: .init(x: x / max(size.width, 1), y: 0.5),
             startRadius: 6,
             endRadius: 80
@@ -47,4 +52,3 @@ struct TabBarBackgroundView: View {
 #Preview("TabBar Background") {
     VStack { Spacer(); TabBarBackgroundView(selectedIndex: 2).environment(ChromeState()) }
 }
-

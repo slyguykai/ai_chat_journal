@@ -399,6 +399,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "AI Journal uses your microphone to record voice entries, making it easy to capture your thoughts when typing isn't convenient. Your voice recordings are processed locally for transcription and never shared with third parties.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "AI Journal uses speech recognition to automatically transcribe your voice entries into text, helping you quickly capture and organize your thoughts. All speech processing happens securely on your device.";
+				INFOPLIST_KEY_NSUserNotificationUsageDescription = "AI Journal uses notifications to gently remind you to maintain your streak and reflect on your day. You can configure reminder time in Settings.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -441,6 +442,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "AI Journal uses your microphone to record voice entries, making it easy to capture your thoughts when typing isn't convenient. Your voice recordings are processed locally for transcription and never shared with third parties.";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "AI Journal uses speech recognition to automatically transcribe your voice entries into text, helping you quickly capture and organize your thoughts. All speech processing happens securely on your device.";
+				INFOPLIST_KEY_NSUserNotificationUsageDescription = "AI Journal uses notifications to gently remind you to maintain your streak and reflect on your day. You can configure reminder time in Settings.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

@@ -13,6 +13,7 @@ struct PlaceholderTextEditor: View {
     let font: Font
     let foreground: Color
     let placeholderColor: Color
+    var tint: Color? = nil
     @FocusState var isFocused: Bool
     
     var body: some View {
@@ -21,6 +22,7 @@ struct PlaceholderTextEditor: View {
                 .font(font)
                 .foregroundColor(foreground)
                 .focused($isFocused)
+                .tint(tint ?? foreground)
                 .padding(.horizontal, -4) // align placeholder
             if text.isEmpty {
                 Text(placeholder)

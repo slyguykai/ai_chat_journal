@@ -19,10 +19,10 @@ enum TabItem: String, CaseIterable, Identifiable {
     var title: String {
         switch self {
         case .today: return "Today"
-        case .inspire: return "Inspire"
+        case .inspire: return "Inspirations"
         case .brainDump: return "Brain Dump"
         case .library: return "Library"
-        case .stats: return "Stats"
+        case .stats: return "Journey"
         }
     }
     
@@ -56,6 +56,5 @@ enum TabItem: String, CaseIterable, Identifiable {
         }
     }
 }
-
 
 

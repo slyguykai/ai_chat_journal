@@ -73,7 +73,7 @@ final class BrainDumpViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.isLoading)
         
         // Wait for save operation to complete
-        await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 second
         
         XCTAssertEqual(viewModel.state, .saved)
         XCTAssertEqual(mockStore.entries.count, initialEntryCount + 1)

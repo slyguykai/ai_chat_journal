@@ -54,14 +54,24 @@ struct InspirationContent {
 struct InspireView: View {
     @State private var inspirationContent: [InspirationContent] = sampleInspirationContent
     @Environment(\.colorScheme) private var colorScheme
+    @State private var showSettings = false
     
     var body: some View {
         ZStack(alignment: .top) {
-            Color.clear.ignoresSafeArea()
+            AppColors.background.ignoresSafeArea()
             
             ScrollView {
                 VStack(spacing: AppSpacing.l) {
-                    TopBarCapsule(iconSystemName: SystemIcon.sparkles.rawValue, title: "Daily Inspiration")
+                    TopBarCapsule(
+                        iconSystemName: SystemIcon.sparkles.rawValue,
+                        title: "Daily Inspiration",
+                        menu: AnyView(
+                            Group {
+                                Button("Settings") { showSettings = true }
+                                Button("About") {}
+                            }
+                        )
+                    )
                     
                     // Title and subtitle block
                     VStack(alignment: .leading, spacing: AppSpacing.s) {
@@ -85,10 +95,8 @@ struct InspireView: View {
                     // List tiles
                     LazyVStack(spacing: AppSpacing.m) {
                         ForEach(inspirationContent.filter { $0.category != .quote }, id: \.id) { content in
-                            GlassCard(cornerRadius: AppRadii.large) {
-                                TileRow(content: content)
-                            }
-                            .cardPress()
+                            SurfaceCard(cornerRadius: AppRadii.large) { TileRow(content: content) }
+                                .cardPress()
                         }
                     }
                     .padding(.bottom, AppSpacing.xl)
@@ -100,7 +108,8 @@ struct InspireView: View {
             .scrollIndicators(.hidden)
             .scrollContentBackground(.hidden)
         }
-        .pastelBackground(.blushLavender, animated: true)
+        .appTheme()
+        .sheet(isPresented: $showSettings) { NavigationStack { SettingsView() } }
     }
 }
 
@@ -110,39 +119,23 @@ private struct QuoteHeroCard: View {
     let content: InspirationContent
     
     var body: some View {
-        VStack(spacing: AppSpacing.s) {
-            Image(system: .sparkles)
-                .font(.system(size: 22, weight: .semibold))
-                .foregroundColor(AppColors.coral)
-            
-            Text(content.content)
-                .titleM(weight: .medium)
-                .foregroundColor(AppColors.inkPrimary)
-                .multilineTextAlignment(.center)
-                .fixedSize(horizontal: false, vertical: true)
-            
-            if let author = content.author {
-                Text("— \(author)")
-                    .body()
-                    .foregroundColor(AppColors.inkSecondary)
+        SurfaceCard(cornerRadius: AppRadii.large) {
+            VStack(spacing: AppSpacing.s) {
+                Image(system: .sparkles)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundColor(AppColors.accent)
+                Text(content.content)
+                    .titleM(weight: .medium)
+                    .foregroundColor(AppColors.inkPrimary)
+                    .multilineTextAlignment(.center)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let author = content.author {
+                    Text("— \(author)")
+                        .body()
+                        .foregroundColor(AppColors.inkSecondary)
+                }
             }
         }
-        .padding(AppSpacing.l)
-        .background(
-            RoundedRectangle(cornerRadius: AppRadii.large)
-                .fill(
-                    LinearGradient(
-                        colors: [AppColors.blush.opacity(0.9), AppColors.lavender.opacity(0.9)],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppRadii.large)
-                        .stroke(Color.white.opacity(0.25), lineWidth: 1)
-                )
-                .shadow(color: .black.opacity(0.12), radius: 20, x: 0, y: 12)
-        )
     }
 }
 
@@ -180,29 +173,7 @@ private struct TileRow: View {
     }
 }
 
-/// Custom button style for inspiration actions
-struct InspirationButtonStyle: ButtonStyle {
-    let isPrimary: Bool
-    
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .font(AppTypography.body.weight(.medium))
-            .foregroundColor(isPrimary ? .white : .white.opacity(0.8))
-            .padding(.horizontal, AppSpacing.m)
-            .padding(.vertical, AppSpacing.s)
-            .background(
-                RoundedRectangle(cornerRadius: AppRadii.small)
-                    .fill(isPrimary ? .white.opacity(0.2) : .clear)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppRadii.small)
-                            .stroke(.white.opacity(isPrimary ? 0.4 : 0.3), lineWidth: 1)
-                    )
-            )
-            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
-            .opacity(configuration.isPressed ? 0.8 : 1.0)
-            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
-    }
-}
+// (Removed old InspirationButtonStyle — replaced by tactile styles.)
 
 // MARK: - Sample Data
 

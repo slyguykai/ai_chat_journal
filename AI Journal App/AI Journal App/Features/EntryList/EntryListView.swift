@@ -13,7 +13,7 @@ struct EntryListView: View {
     var body: some View {
         VStack(spacing: AppSpacing.m) {
             ForEach(entries) { entry in
-                GlassCard(cornerRadius: AppRadii.large) {
+                SurfaceCard(cornerRadius: AppRadii.large) {
                     HStack(alignment: .top, spacing: AppSpacing.m) {
                         Image(system: .faceSmiling)
                             .font(.system(size: 18, weight: .semibold))

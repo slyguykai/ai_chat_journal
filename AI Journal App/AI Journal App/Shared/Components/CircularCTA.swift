@@ -12,9 +12,19 @@ struct CircularCTA: View {
     
     let icon: String
     let size: Size
+    let backgroundColor: Color
     let action: () -> Void
     let accessibilityLabel: String
     let accessibilityHint: String
+
+    init(icon: String, size: Size, action: @escaping () -> Void, accessibilityLabel: String, accessibilityHint: String, backgroundColor: Color = .black) {
+        self.icon = icon
+        self.size = size
+        self.backgroundColor = backgroundColor
+        self.action = action
+        self.accessibilityLabel = accessibilityLabel
+        self.accessibilityHint = accessibilityHint
+    }
     
     private var dimension: CGFloat {
         switch size {
@@ -28,21 +38,20 @@ struct CircularCTA: View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: [AppColors.peach, AppColors.coral],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(backgroundColor)
                     .overlay(
                         Circle()
-                            .stroke(Color.white.opacity(0.25), lineWidth: 1)
-                            .blur(radius: 2)
+                            .stroke(AppColors.neoHighlight.opacity(0.6), lineWidth: 1)
+                            .blur(radius: 1.5)
                             .offset(x: -1, y: -1)
-                            .mask(Circle().fill(LinearGradient(colors: [.white, .clear], startPoint: .topLeading, endPoint: .bottomTrailing)))
+                            .mask(
+                                Circle().fill(
+                                    LinearGradient(colors: [.white, .clear], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                )
+                            )
                     )
-                Image(system: .plusCircleFill)
+                    .modifier(NeumorphRaised(cornerRadius: dimension / 2, distance: 5, blur: 10, highlight: AppColors.neoHighlight, shadow: AppColors.neoShadow, background: backgroundColor))
+                Image(systemName: icon)
                     .font(.system(size: 28, weight: .bold))
                     .foregroundColor(.white)
             }
@@ -58,5 +67,5 @@ struct CircularCTA: View {
 }
 
 #Preview("CircularCTA") {
-    CircularCTA(icon: "plus", size: .large, action: {}, accessibilityLabel: "Add", accessibilityHint: "Open Brain Dump")
+    CircularCTA(icon: "plus", size: .large, action: {}, accessibilityLabel: "Add", accessibilityHint: "Open Brain Dump", backgroundColor: .black)
 }

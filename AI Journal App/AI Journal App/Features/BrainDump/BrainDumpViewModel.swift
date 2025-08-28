@@ -42,8 +42,12 @@ enum BrainDumpState: Equatable {
 @MainActor
 class BrainDumpViewModel: ObservableObject {
     @Published var state: BrainDumpState = .idle
+    @Published var selectedMood: MoodType? = nil
+    @Published private(set) var isDictating: Bool = false
     
     private let entryStore: any EntryStore
+    private var transcriber: SpeechTranscriber?
+    private var dictationBaseText: String = ""
     
     init(entryStore: any EntryStore) {
         self.entryStore = entryStore
@@ -69,13 +73,14 @@ class BrainDumpViewModel: ObservableObject {
         
         Task {
             do {
-                let entry = JournalEntry(text: trimmedText)
+                let entry = JournalEntry(text: trimmedText, mood: selectedMood)
                 try await entryStore.addEntry(entry)
                 state = .saved
                 
                 // Reset to idle after brief delay
                 try await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
                 state = .idle
+                selectedMood = nil
             } catch {
                 state = .error(message: error.localizedDescription)
             }
@@ -90,6 +95,8 @@ class BrainDumpViewModel: ObservableObject {
     
     func reset() {
         state = .idle
+        selectedMood = nil
+        stopDictation()
     }
     
     // MARK: - Computed Properties
@@ -104,5 +111,46 @@ class BrainDumpViewModel: ObservableObject {
     
     var isLoading: Bool {
         state.isSaving
+    }
+}
+
+// MARK: - Speech Dictation
+
+extension BrainDumpViewModel {
+    func toggleDictation() {
+        if isDictating { stopDictation() } else { startDictation() }
+    }
+    
+    private func startDictation() {
+        if !state.isEditing { state = .editing(text: state.currentText) }
+        dictationBaseText = state.currentText
+        transcriber = SpeechTranscriber()
+        isDictating = true
+        transcriber?.onPartial = { [weak self] partial in
+            guard let self else { return }
+            let combined = self.dictationBaseText.isEmpty ? partial : (self.dictationBaseText + (partial.isEmpty ? "" : " " + partial))
+            Task { @MainActor in self.state = .editing(text: combined) }
+        }
+        transcriber?.onError = { [weak self] error in
+            Task { @MainActor in
+                self?.isDictating = false
+                self?.state = .error(message: error.localizedDescription)
+            }
+        }
+        Task { [weak self] in
+            do { try await self?.transcriber?.start() } catch {
+                await MainActor.run {
+                    self?.isDictating = false
+                    self?.state = .error(message: error.localizedDescription)
+                }
+            }
+        }
+    }
+    
+    private func stopDictation() {
+        transcriber?.stop()
+        transcriber = nil
+        isDictating = false
+        dictationBaseText = state.currentText
     }
 }

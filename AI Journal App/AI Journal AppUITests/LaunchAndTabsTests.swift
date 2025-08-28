@@ -32,35 +32,77 @@ final class LaunchAndTabsTests: XCTestCase {
         let libraryTab = tabBar.buttons["Library view"]
         XCTAssertTrue(libraryTab.exists, "Library tab should exist")
         
-        // Test tab navigation
+        // Navigate to Library and back to Today
         libraryTab.tap()
         XCTAssertTrue(libraryTab.isSelected, "Library tab should be selected after tap")
-        
-        // Test Quick Add button exists
-        let quickAddTab = tabBar.buttons["Quick add entry"]
-        XCTAssertTrue(quickAddTab.exists, "Quick Add tab should exist")
+        todayTab.tap()
+        XCTAssertTrue(todayTab.isSelected, "Today tab should be selected after tap")
     }
     
-    func testQuickAddFlow() throws {
+    func testBrainDumpFlowSavesEntry() throws {
         let app = XCUIApplication()
         app.launch()
         
-        let tabBar = app.tabBars.firstMatch
-        let quickAddTab = tabBar.buttons["Quick add entry"]
+        // Tap the floating CTA to open Brain Dump
+        let brainDumpCTA = app.buttons["Brain dump view"]
+        XCTAssertTrue(brainDumpCTA.waitForExistence(timeout: 3), "Floating CTA should exist")
+        brainDumpCTA.tap()
         
-        // Tap Quick Add
-        quickAddTab.tap()
+        // Interact with the editor
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 3), "Brain Dump editor should exist")
+        editor.tap()
+        editor.typeText("UITest entry from UI test")
         
-        // Verify sheet appears
-        let quickEntryText = app.staticTexts["Quick Entry"]
-        XCTAssertTrue(quickEntryText.waitForExistence(timeout: 2), "Quick Entry sheet should appear")
+        // Save the entry via keyboard toolbar button
+        let saveButton = app.buttons["Save entry"]
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 3), "Save button should exist")
+        saveButton.tap()
         
-        // Test Cancel button
-        let cancelButton = app.buttons["Cancel entry"]
-        XCTAssertTrue(cancelButton.exists, "Cancel button should exist")
-        cancelButton.tap()
+        // Navigate to Library and verify the entry appears
+        let libraryTab = app.tabBars.firstMatch.buttons["Library view"]
+        XCTAssertTrue(libraryTab.exists)
+        libraryTab.tap()
         
-        // Verify sheet dismisses
-        XCTAssertFalse(quickEntryText.exists, "Quick Entry sheet should dismiss")
+        let newEntry = app.staticTexts.containing(NSPredicate(format: "label CONTAINS[c] %@", "UITest entry")).firstMatch
+        XCTAssertTrue(newEntry.waitForExistence(timeout: 5), "Newly saved entry should appear in Library")
+    }
+
+    func testBrainDumpControlsProgressiveDisclosure() throws {
+        let app = XCUIApplication()
+        app.launch()
+
+        // Open Brain Dump via floating CTA
+        let brainDumpCTA = app.buttons["Brain dump view"]
+        XCTAssertTrue(brainDumpCTA.waitForExistence(timeout: 3))
+        brainDumpCTA.tap()
+
+        // Focus the editor to bring up the keyboard toolbar
+        let editor = app.textViews.firstMatch
+        XCTAssertTrue(editor.waitForExistence(timeout: 3))
+        editor.tap()
+
+        // Identify toolbar controls (now that keyboard is up)
+        let saveButton = app.buttons["save_entry_button"]
+        let micButton = app.buttons["mic_button"]
+        let happyMood = app.buttons["mood_happy_button"]
+
+        // Controls exist but are not hittable until user types
+        XCTAssertTrue(saveButton.waitForExistence(timeout: 3))
+        XCTAssertFalse(saveButton.isHittable, "Save should be hidden before typing")
+        XCTAssertTrue(micButton.exists)
+        XCTAssertFalse(micButton.isHittable, "Mic should be hidden before typing")
+        XCTAssertTrue(happyMood.exists)
+        XCTAssertFalse(happyMood.isHittable, "Mood buttons should be hidden before typing")
+
+        // Type a character to reveal controls
+        editor.typeText("a")
+
+        // Controls become visible and hittable (allow short animation)
+        let enabledPredicate = NSPredicate(format: "isEnabled == true")
+        expectation(for: enabledPredicate, evaluatedWith: saveButton)
+        expectation(for: enabledPredicate, evaluatedWith: micButton)
+        expectation(for: enabledPredicate, evaluatedWith: happyMood)
+        waitForExpectations(timeout: 3)
     }
 }

@@ -16,7 +16,7 @@ final class EntryStoreSwiftDataTests: XCTestCase {
     var entryStore: SwiftDataEntryStore!
     
     override func setUp() async throws {
-        super.setUp()
+        try await super.setUp()
         container = try AppContainer.inMemoryContainer()
         entryStore = container.entryStore as? SwiftDataEntryStore
         XCTAssertNotNil(entryStore, "Failed to create SwiftDataEntryStore")

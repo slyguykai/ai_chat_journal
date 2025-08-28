@@ -18,7 +18,7 @@ class AppContainer: ObservableObject {
     
     // MARK: - Initialization
     
-    init(useSwiftData: Bool = false, entryStore: (any EntryStore)? = nil) {
+    init(useSwiftData: Bool = true, entryStore: (any EntryStore)? = nil) {
         if let customStore = entryStore {
             self.entryStore = customStore
             self.modelContainer = nil

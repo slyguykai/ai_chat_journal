@@ -10,46 +10,37 @@ import SwiftUI
 /// Semantic color tokens for the AI Journal App design system
 struct AppColors {
     
-    // MARK: - Ink (Text Colors)
+    // MARK: - Tactile Calm Core Palette
     
-    /// Primary text color - highest contrast
-    static let inkPrimary = Color(hex: "0F1115")
+    /// Base background “material” color
+    static let background = Color(hex: "F0F2F5")
     
-    /// Secondary text color - 70% opacity for reduced emphasis
-    static let inkSecondary = Color(hex: "2C2F36").opacity(0.7)
+    /// Primary text color (desaturated slate blue)
+    static let inkPrimary = Color(hex: "3D4A5C")
     
-    // MARK: - Surface Colors
+    /// Secondary text color (reduced emphasis)
+    static let inkSecondary = Color(hex: "3D4A5C").opacity(0.7)
     
-    /// Main canvas background color
-    static let canvas = Color(hex: "FFF8F3")
+    /// Accent teal used sparingly for primary CTAs and active states
+    static let accent = Color(hex: "22C5C5")
     
-    /// Surface background for cards and containers
-    static let surface = Color(hex: "FFFFFF")
+    /// Neomorphic highlight (top/left) and shadow (bottom/right)
+    static let neoHighlight = Color(hex: "FFFFFF")
+    static let neoShadow = Color(hex: "D9DCE1")
     
-    /// Divider and border color
-    static let divider = Color(hex: "E9E9EE")
+    // MARK: - Legacy/Compatibility Tokens
+    // These map to the new palette to reduce churn while migrating screens.
+    static let canvas = AppColors.background
+    static let surface = AppColors.background
+    static let divider = AppColors.neoShadow
     
-    // MARK: - Accent Colors
-    
-    /// Warm peach accent
+    // Legacy accents retained for gradual UI transition; avoid for new work
     static let peach = Color(hex: "FFB98A")
-    
-    /// Coral accent for primary actions
     static let coral = Color(hex: "FF8A65")
-    
-    /// Soft apricot for subtle highlights
     static let apricot = Color(hex: "FFD3A1")
-    
-    /// Blush pink for mood indicators
     static let blush = Color(hex: "F7C4CF")
-    
-    /// Lavender for calm states
     static let lavender = Color(hex: "CBB7FF")
-    
-    /// Sky blue for positive moods
     static let sky = Color(hex: "BFEAF5")
-    
-    /// Mint green for success states
     static let mint = Color(hex: "CFEAD6")
 }
 
@@ -79,6 +70,26 @@ extension Color {
             blue: Double(b) / 255,
             opacity: Double(a) / 255
         )
+    }
+    
+    func lighter(by amount: CGFloat) -> Color {
+        Color(UIColor(self).lighter(by: amount))
+    }
+    func darker(by amount: CGFloat) -> Color {
+        Color(UIColor(self).darker(by: amount))
+    }
+}
+
+private extension UIColor {
+    func lighter(by amount: CGFloat) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard getRed(&r, green: &g, blue: &b, alpha: &a) else { return self }
+        return UIColor(red: min(r + amount, 1), green: min(g + amount, 1), blue: min(b + amount, 1), alpha: a)
+    }
+    func darker(by amount: CGFloat) -> UIColor {
+        var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+        guard getRed(&r, green: &g, blue: &b, alpha: &a) else { return self }
+        return UIColor(red: max(r - amount, 0), green: max(g - amount, 0), blue: max(b - amount, 0), alpha: a)
     }
 }
 
@@ -152,5 +163,3 @@ private struct ColorRow: View {
         }
     }
 }
-
-
